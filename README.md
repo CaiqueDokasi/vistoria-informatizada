@@ -1,100 +1,85 @@
-# 🏢 Vistoria Informatizada
+# Vistoria Informatizada
 
-Sistema web para **gerenciamento de vistorias prediais** e das **ocorrências** encontradas em cada vistoria, mantendo o histórico completo por imóvel.
+Sistema web para gerenciamento de vistorias prediais e das ocorrências encontradas em cada vistoria.
 
-> Projeto acadêmico — Situação de Aprendizagem (SA) "Vistorias" — 2º período.
+Projeto da Situação de Aprendizagem (SA) "Vistorias" — 2º período.
 
-## 📌 Sobre o projeto
+## Sobre o projeto
 
-O **Analista** cadastra as vistorias que serão realizadas (endereço, foto do local, informações iniciais e o operador responsável). O **Operador** (vistoriador) vai a campo e registra uma ou mais **ocorrências** em cada vistoria, com classificação, data, descrição e fotos.
+O **Analista** cadastra as vistorias que serão realizadas, informando endereço, foto do local, descrição e o operador responsável. O **Operador** (vistoriador) consulta as vistorias e registra uma ou mais **ocorrências** em cada uma, com classificação, descrição e foto.
 
 | Perfil | O que pode fazer |
 |---|---|
-| **Analista** | Ver, incluir, alterar e excluir vistorias · gerenciar usuários · ver ocorrências |
-| **Operador** | Ver a lista de vistorias · registrar ocorrências · ver o histórico de ocorrências |
+| Analista | Ver, incluir, alterar e excluir vistorias; gerenciar usuários |
+| Operador | Ver as vistorias; registrar ocorrências; ver o histórico de ocorrências |
 
-## 🛠️ Tecnologias
-
-Somente as tecnologias definidas na arquitetura da SA:
+## Tecnologias
 
 | Camada | Tecnologia |
 |---|---|
-| Frontend | HTML, CSS, JavaScript, Bootstrap |
-| Backend | Node.js (com Express) |
+| Frontend | HTML, CSS, JavaScript e Bootstrap |
+| Backend | Node.js (com a biblioteca Express) |
 | Banco de dados | MySQL |
 
-Bibliotecas auxiliares do Node: `express`, `mysql2`, `bcryptjs` (hash de senha), `jsonwebtoken` (login), `multer` (upload de fotos), `dotenv` (configuração).
+## Documentação
 
-## 📚 Documentação
+1. [Conceito](docs/01-conceito.md) — o problema, a solução e os perfis de usuário
+2. [Requisitos](docs/02-requisitos.md) — o que o sistema deve fazer
+3. [Banco de dados](docs/03-banco-de-dados.md) — tabelas e relacionamentos
+4. [Backend](docs/04-backend.md) — como o servidor funciona e lista de rotas
+5. [Telas](docs/05-telas.md) — descrição das telas
+6. [Cronograma](docs/06-cronograma.md) — entregas e prazos
 
-| Documento | Conteúdo |
-|---|---|
-| [01 - Conceito](docs/01-conceito.md) | Visão do produto, problema, perfis e fluxo |
-| [02 - Requisitos](docs/02-requisitos.md) | Requisitos funcionais, não funcionais e regras de negócio |
-| [03 - Banco de dados](docs/03-banco-de-dados.md) | DER e dicionário de dados |
-| [04 - API](docs/04-api.md) | Endpoints da API REST |
-| [05 - Telas](docs/05-telas.md) | Descrição das telas para o protótipo |
-| [06 - Cronograma](docs/06-cronograma.md) | Entregáveis e prazos da SA |
-
-## 📁 Estrutura de pastas
+## Estrutura de pastas
 
 ```
 vistoria-informatizada/
 ├── database/
-│   ├── 01-schema.sql          # criação do banco e tabelas
-│   └── 02-seed.sql            # cargos, permissões e usuários de teste
-├── docs/                      # documentação do projeto
-├── public/                    # frontend (HTML/CSS/JS/Bootstrap)
+│   ├── 01-schema.sql      # cria o banco e as tabelas
+│   └── 02-seed.sql        # insere dados iniciais
+├── docs/                  # documentação
+├── public/                # frontend (HTML, CSS, JS)
 ├── src/
-│   ├── config/db.js           # conexão com o MySQL
-│   ├── controllers/           # regras de cada módulo
-│   ├── middlewares/           # login, permissões, upload, erros
-│   ├── routes/                # definição das rotas da API
-│   └── server.js              # ponto de entrada
-├── uploads/                   # fotos enviadas (não vão para o Git)
-├── .env.example
+│   ├── server.js          # inicia o servidor
+│   ├── db.js              # conexão com o MySQL
+│   └── rotas/             # rotas da API, uma por assunto
+│       ├── login.js
+│       ├── usuarios.js
+│       ├── vistorias.js
+│       └── ocorrencias.js
 └── package.json
 ```
 
-## ▶️ Como rodar
+## Como rodar
 
-**Pré-requisitos:** [Node.js](https://nodejs.org) 18+ e [MySQL](https://dev.mysql.com/downloads/) 8.
+Pré-requisitos: [Node.js](https://nodejs.org) e [MySQL](https://dev.mysql.com/downloads/) instalados.
 
-1. Clone o repositório e instale as dependências:
+1. Clonar o repositório e instalar as dependências:
    ```bash
    git clone https://github.com/CaiqueDokasi/vistoria-informatizada.git
    cd vistoria-informatizada
    npm install
    ```
-2. Crie o banco executando os scripts no MySQL Workbench (ou terminal), **nesta ordem**:
+2. No MySQL Workbench, abrir e executar os arquivos `database/01-schema.sql` e depois `database/02-seed.sql`.
+3. Abrir `src/db.js` e ajustar o usuário e a senha do MySQL.
+4. Iniciar o servidor:
    ```bash
-   mysql -u root -p < database/01-schema.sql
-   mysql -u root -p < database/02-seed.sql
-   ```
-3. Copie `.env.example` para `.env` e preencha a senha do MySQL e o `JWT_SECRET`.
-4. Inicie o servidor:
-   ```bash
-   npm run dev     # reinicia sozinho ao salvar arquivos
-   # ou
    npm start
    ```
-5. Acesse http://localhost:3000/api/status
+5. Acessar http://localhost:3000
 
-### 👤 Usuários de teste
+### Usuários de teste
 
 | Perfil | E-mail | Senha |
 |---|---|---|
 | Analista | analista@vistoria.com | 123456 |
 | Operador | operador@vistoria.com | 123456 |
 
-## ✅ Status
+## Andamento
 
 - [x] Conceito e documentação
-- [x] Modelagem do banco (DER + scripts)
-- [x] API: login e permissões
-- [x] API: usuários
-- [x] API: vistorias (com fotos e filtros)
-- [x] API: ocorrências (com fotos e histórico)
+- [x] Modelagem do banco de dados
+- [x] Backend: login, usuários, vistorias e ocorrências
 - [ ] Protótipo de telas (Figma)
-- [ ] Frontend (HTML + Bootstrap + teclado virtual de senha)
+- [ ] Frontend
 - [ ] Extra: importação e backup dos dados

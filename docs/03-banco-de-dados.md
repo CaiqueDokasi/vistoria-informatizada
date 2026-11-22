@@ -1,8 +1,11 @@
 # 03 - Banco de Dados
 
-Banco **MySQL 8**: `vistoria_informatizada`. Scripts em [`database/`](../database).
+Banco MySQL chamado `vistoria_informatizada`. Os scripts estão na pasta [`database/`](../database):
 
-## DER
+- `01-schema.sql` — cria o banco e as tabelas
+- `02-seed.sql` — insere cargos, permissões, usuários de teste e um exemplo de vistoria
+
+## Diagrama
 
 ```mermaid
 erDiagram
@@ -25,8 +28,8 @@ erDiagram
         varchar nome
     }
     CARGO_PERMISSAO {
-        int id_cargo PK, FK
-        int id_permissao PK, FK
+        int id_cargo FK
+        int id_permissao FK
     }
     USUARIO {
         int id PK
@@ -66,91 +69,37 @@ erDiagram
     }
 ```
 
-Rascunho original do DER:
+## Tabelas
 
-![DER rascunho](img/der-rascunho.jpg)
+| Tabela | Para que serve |
+|---|---|
+| `cargo` | Perfis do sistema: Analista e Operador |
+| `permissao` | Ações que podem ser liberadas para um cargo |
+| `cargo_permissao` | Diz quais permissões cada cargo tem |
+| `usuario` | Pessoas que acessam o sistema |
+| `vistoria` | Vistorias cadastradas pelo analista |
+| `foto_vistoria` | Fotos do local da vistoria (link da imagem) |
+| `ocorrencia` | Problemas registrados pelo operador em uma vistoria |
+| `foto_ocorrencia` | Fotos de cada ocorrência (link da imagem) |
 
-### Decisões sobre o rascunho
-
-| Rascunho | Implementado | Motivo |
-|---|---|---|
-| `guid` | `INT AUTO_INCREMENT` | MySQL não tem tipo guid; inteiro é mais simples |
-| Tabelas em PascalCase/plural (`Vistorias`) | `snake_case` no singular (`vistoria`) | Evita problemas de maiúsculas/minúsculas entre Windows e Linux |
-| `StatusEnum` | `ENUM('ABERTA','EM_ANDAMENTO','FINALIZADA')` | |
-| `ClassificacaoEnum` | `ENUM('BAIXA','MEDIA','ALTA','CRITICA')` | Gravidade da ocorrência |
-
-## Dicionário de dados
-
-### `cargo`
-| Coluna | Tipo | Regras | Descrição |
-|---|---|---|---|
-| id | INT | PK, auto incremento | Identificador |
-| nome | VARCHAR(80) | NOT NULL, UNIQUE | Analista ou Operador |
-
-### `permissao`
-| Coluna | Tipo | Regras | Descrição |
-|---|---|---|---|
-| id | INT | PK, auto incremento | Identificador |
-| nome | VARCHAR(100) | NOT NULL, UNIQUE | Código da permissão |
-
-Permissões cadastradas:
+## Permissões de cada cargo
 
 | Permissão | Analista | Operador |
 |---|:---:|:---:|
 | GERENCIAR_USUARIOS | ✅ | |
-| VISUALIZAR_VISTORIAS | ✅ | ✅ |
 | GERENCIAR_VISTORIAS | ✅ | |
-| VISUALIZAR_OCORRENCIAS | ✅ | ✅ |
+| VISUALIZAR_VISTORIAS | ✅ | ✅ |
 | REGISTRAR_OCORRENCIAS | | ✅ |
+| VISUALIZAR_OCORRENCIAS | ✅ | ✅ |
 
-### `cargo_permissao`
-| Coluna | Tipo | Regras | Descrição |
-|---|---|---|---|
-| id_cargo | INT | PK, FK → cargo | Cargo |
-| id_permissao | INT | PK, FK → permissao | Permissão concedida |
+## Valores fixos (ENUM)
 
-### `usuario`
-| Coluna | Tipo | Regras | Descrição |
-|---|---|---|---|
-| id | INT | PK, auto incremento | Identificador |
-| nome | VARCHAR(100) | NOT NULL | Nome completo |
-| email | VARCHAR(100) | NOT NULL, UNIQUE | Usado no login |
-| senha | VARCHAR(100) | NOT NULL | Hash bcrypt |
-| id_cargo | INT | FK → cargo | Perfil do usuário |
+| Campo | Valores |
+|---|---|
+| `vistoria.status` | `ABERTA`, `FINALIZADA` |
+| `ocorrencia.classificacao` | `BAIXA`, `MEDIA`, `ALTA`, `CRITICA` |
 
-### `vistoria`
-| Coluna | Tipo | Regras | Descrição |
-|---|---|---|---|
-| id | INT | PK, auto incremento | Identificador único da vistoria |
-| id_usuario_criador | INT | FK → usuario | Analista que cadastrou |
-| id_operador_responsavel | INT | FK → usuario | Operador responsável |
-| data_criacao | DATETIME | padrão: agora | Data de abertura |
-| descricao | TEXT | NOT NULL | Informações iniciais para o vistoriador |
-| endereco | VARCHAR(255) | NOT NULL | Endereço do local |
-| status | ENUM | padrão: ABERTA | ABERTA, EM_ANDAMENTO, FINALIZADA |
+## Observações
 
-### `foto_vistoria`
-| Coluna | Tipo | Regras | Descrição |
-|---|---|---|---|
-| id | INT | PK, auto incremento | Identificador |
-| id_vistoria | INT | FK → vistoria (cascade) | Vistoria |
-| url_foto | VARCHAR(255) | NOT NULL | Caminho da imagem (ex.: `/uploads/123.jpg`) |
-| data_criacao | DATETIME | padrão: agora | Data do envio |
-
-### `ocorrencia`
-| Coluna | Tipo | Regras | Descrição |
-|---|---|---|---|
-| id | INT | PK, auto incremento | Identificador |
-| id_vistoria | INT | FK → vistoria (cascade) | Vistoria onde foi encontrada |
-| id_usuario_criador | INT | FK → usuario | Operador que relatou |
-| classificacao | ENUM | NOT NULL | BAIXA, MEDIA, ALTA, CRITICA |
-| data_criacao | DATETIME | padrão: agora | Data do registro |
-| descricao | TEXT | NOT NULL | Descrição da ocorrência |
-
-### `foto_ocorrencia`
-| Coluna | Tipo | Regras | Descrição |
-|---|---|---|---|
-| id | INT | PK, auto incremento | Identificador |
-| id_ocorrencia | INT | FK → ocorrencia (cascade) | Ocorrência |
-| url_foto | VARCHAR(255) | NOT NULL | Caminho da imagem |
-| data_criacao | DATETIME | padrão: agora | Data do envio |
+- As fotos são salvas como **link** (texto) no campo `url_foto`.
+- `ON DELETE CASCADE`: ao excluir uma vistoria, o MySQL exclui automaticamente suas fotos e ocorrências.

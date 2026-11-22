@@ -1,115 +1,120 @@
-### Requisições de teste - use com a extensão "REST Client" do VS Code
-### Clique em "Send Request" acima de cada requisição.
+### Exemplos de requisições
+### Para usar: instale a extensão "REST Client" no VS Code
+### e clique em "Send Request" acima de cada requisição.
 
 @url = http://localhost:3000/api
 
-### Status da API
-GET {{url}}/status
+### ---------------- LOGIN ----------------
 
-### Login como ANALISTA
-# @name loginAnalista
-POST {{url}}/auth/login
+### Login do analista
+POST {{url}}/login
 Content-Type: application/json
 
 { "email": "analista@vistoria.com", "senha": "123456" }
 
-### Login como OPERADOR
-# @name loginOperador
-POST {{url}}/auth/login
+### Login com senha errada
+POST {{url}}/login
 Content-Type: application/json
 
-{ "email": "operador@vistoria.com", "senha": "123456" }
+{ "email": "analista@vistoria.com", "senha": "errada" }
 
-@tokenAnalista = {{loginAnalista.response.body.token}}
-@tokenOperador = {{loginOperador.response.body.token}}
-
-### ---------------- USUÁRIOS (analista) ----------------
+### ---------------- USUÁRIOS ----------------
 
 ### Listar cargos
 GET {{url}}/cargos
-Authorization: Bearer {{tokenAnalista}}
 
 ### Listar usuários
 GET {{url}}/usuarios
-Authorization: Bearer {{tokenAnalista}}
 
-### Criar operador
+### Buscar usuário
+GET {{url}}/usuarios/1
+
+### Cadastrar usuário
 POST {{url}}/usuarios
-Authorization: Bearer {{tokenAnalista}}
 Content-Type: application/json
 
 { "nome": "Maria Souza", "email": "maria@vistoria.com", "senha": "123456", "idCargo": 2 }
 
-### Listar operadores
-GET {{url}}/usuarios/operadores
-Authorization: Bearer {{tokenAnalista}}
+### Alterar usuário
+PUT {{url}}/usuarios/3
+Content-Type: application/json
+
+{ "nome": "Maria Souza Lima", "email": "maria@vistoria.com", "senha": "123456", "idCargo": 2 }
+
+### Excluir usuário
+DELETE {{url}}/usuarios/3
 
 ### ---------------- VISTORIAS ----------------
 
-### Listar vistorias (com filtro)
-GET {{url}}/vistorias?status=EM_ANDAMENTO
-Authorization: Bearer {{tokenOperador}}
+### Listar vistorias
+GET {{url}}/vistorias
 
-### Detalhes da vistoria 1
+### Listar vistorias abertas
+GET {{url}}/vistorias?status=ABERTA
+
+### Detalhes da vistoria
 GET {{url}}/vistorias/1
-Authorization: Bearer {{tokenOperador}}
 
-### Criar vistoria (sem foto) - analista
+### Cadastrar vistoria
 POST {{url}}/vistorias
-Authorization: Bearer {{tokenAnalista}}
-Content-Type: multipart/form-data; boundary=limite
-
---limite
-Content-Disposition: form-data; name="descricao"
-
-Vistoria do salão de festas
---limite
-Content-Disposition: form-data; name="endereco"
-
-Av. Brasil, 500 - Condomínio Sol
---limite
-Content-Disposition: form-data; name="idOperadorResponsavel"
-
-2
---limite--
-
-### Alterar / finalizar vistoria
-PUT {{url}}/vistorias/1
-Authorization: Bearer {{tokenAnalista}}
 Content-Type: application/json
 
 {
+  "idUsuarioCriador": 1,
+  "idOperadorResponsavel": 2,
+  "descricao": "Vistoria do salão de festas",
+  "endereco": "Av. Brasil, 500 - Condomínio Sol",
+  "urlFoto": "https://exemplo.com/foto-salao.jpg"
+}
+
+### Adicionar foto
+POST {{url}}/vistorias/1/fotos
+Content-Type: application/json
+
+{ "urlFoto": "https://exemplo.com/fachada.jpg" }
+
+### Finalizar vistoria
+PUT {{url}}/vistorias/1
+Content-Type: application/json
+
+{
+  "idOperadorResponsavel": 2,
   "descricao": "Vistoria de entrega do apartamento 101.",
   "endereco": "Rua das Flores, 123 - Apto 101 - Centro",
-  "idOperadorResponsavel": 2,
   "status": "FINALIZADA"
 }
 
-### Operador tentando criar vistoria (deve retornar 403)
-POST {{url}}/vistorias
-Authorization: Bearer {{tokenOperador}}
+### Excluir vistoria
+DELETE {{url}}/vistorias/2
 
 ### ---------------- OCORRÊNCIAS ----------------
 
-### Registrar ocorrência (operador)
-POST {{url}}/vistorias/1/ocorrencias
-Authorization: Bearer {{tokenOperador}}
-Content-Type: multipart/form-data; boundary=limite
-
---limite
-Content-Disposition: form-data; name="classificacao"
-
-ALTA
---limite
-Content-Disposition: form-data; name="descricao"
-
-Fissura na viga da garagem.
---limite--
-
 ### Histórico de ocorrências
-GET {{url}}/ocorrencias?classificacao=ALTA
-Authorization: Bearer {{tokenAnalista}}
+GET {{url}}/ocorrencias
 
-### Ocorrências da vistoria 1
-GET {{url}}/vistorias/1/ocorrencias
-Authorization: Bearer {{tokenOperador}}
+### Ocorrências de uma vistoria
+GET {{url}}/ocorrencias?idVistoria=1
+
+### Detalhes da ocorrência
+GET {{url}}/ocorrencias/1
+
+### Registrar ocorrência
+POST {{url}}/ocorrencias
+Content-Type: application/json
+
+{
+  "idVistoria": 1,
+  "idUsuarioCriador": 2,
+  "classificacao": "ALTA",
+  "descricao": "Rachadura na viga da garagem.",
+  "urlFoto": "https://exemplo.com/rachadura.jpg"
+}
+
+### Alterar ocorrência
+PUT {{url}}/ocorrencias/1
+Content-Type: application/json
+
+{ "classificacao": "BAIXA", "descricao": "Pequena mancha de umidade no banheiro." }
+
+### Excluir ocorrência
+DELETE {{url}}/ocorrencias/2

@@ -1,27 +1,27 @@
-require('dotenv').config({ quiet: true });
-
+// Arquivo principal: é ele que inicia o servidor (npm start)
 const express = require('express');
-const path = require('path');
-const rotas = require('./routes');
-const tratarErros = require('./middlewares/erros');
 
 const app = express();
 
+// Permite que o servidor leia dados em JSON enviados pelo frontend
 app.use(express.json());
 
-// Frontend (HTML/CSS/JS/Bootstrap) servido pela pasta /public
-app.use(express.static(path.join(__dirname, '..', 'public')));
+// Entrega os arquivos do frontend (HTML, CSS, JS) que ficam na pasta "public"
+app.use(express.static('public'));
 
-// Fotos enviadas ficam acessíveis em /uploads/<arquivo>
-app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
+// Rotas da API: cada arquivo cuida de um assunto
+app.use('/api', require('./rotas/login'));
+app.use('/api', require('./rotas/usuarios'));
+app.use('/api', require('./rotas/vistorias'));
+app.use('/api', require('./rotas/ocorrencias'));
 
-// API REST
-app.use('/api', rotas);
-app.use('/api', (req, res) => res.status(404).json({ erro: 'Rota não encontrada.' }));
+// Se ocorrer um erro inesperado (ex.: banco desligado ou e-mail repetido),
+// devolve JSON em vez de uma página HTML de erro
+app.use((err, req, res, next) => {
+  console.error(err.message);
+  res.status(500).json({ erro: 'Erro no servidor: ' + err.message });
+});
 
-app.use(tratarErros);
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Vistoria Informatizada rodando em http://localhost:${PORT}`);
+app.listen(3000, () => {
+  console.log('Servidor rodando em http://localhost:3000');
 });
