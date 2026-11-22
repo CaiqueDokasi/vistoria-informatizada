@@ -1,0 +1,26 @@
+{
+  "name": "vistoria-informatizada",
+  "version": "1.0.0",
+  "description": "Sistema web para gerenciamento de vistorias prediais e suas ocorrências (Situação de Aprendizagem - 2º período).",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "keywords": [
+    "vistoria",
+    "inspecao-predial",
+    "nodejs",
+    "express",
+    "mysql"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "dotenv": "^18.0.10",
+    "express": "^5.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^2.5.0",
+    "mysql2": "^3.24.6"
+  }
+}

@@ -1,0 +1,115 @@
+### Requisições de teste - use com a extensão "REST Client" do VS Code
+### Clique em "Send Request" acima de cada requisição.
+
+@url = http://localhost:3000/api
+
+### Status da API
+GET {{url}}/status
+
+### Login como ANALISTA
+# @name loginAnalista
+POST {{url}}/auth/login
+Content-Type: application/json
+
+{ "email": "analista@vistoria.com", "senha": "123456" }
+
+### Login como OPERADOR
+# @name loginOperador
+POST {{url}}/auth/login
+Content-Type: application/json
+
+{ "email": "operador@vistoria.com", "senha": "123456" }
+
+@tokenAnalista = {{loginAnalista.response.body.token}}
+@tokenOperador = {{loginOperador.response.body.token}}
+
+### ---------------- USUÁRIOS (analista) ----------------
+
+### Listar cargos
+GET {{url}}/cargos
+Authorization: Bearer {{tokenAnalista}}
+
+### Listar usuários
+GET {{url}}/usuarios
+Authorization: Bearer {{tokenAnalista}}
+
+### Criar operador
+POST {{url}}/usuarios
+Authorization: Bearer {{tokenAnalista}}
+Content-Type: application/json
+
+{ "nome": "Maria Souza", "email": "maria@vistoria.com", "senha": "123456", "idCargo": 2 }
+
+### Listar operadores
+GET {{url}}/usuarios/operadores
+Authorization: Bearer {{tokenAnalista}}
+
+### ---------------- VISTORIAS ----------------
+
+### Listar vistorias (com filtro)
+GET {{url}}/vistorias?status=EM_ANDAMENTO
+Authorization: Bearer {{tokenOperador}}
+
+### Detalhes da vistoria 1
+GET {{url}}/vistorias/1
+Authorization: Bearer {{tokenOperador}}
+
+### Criar vistoria (sem foto) - analista
+POST {{url}}/vistorias
+Authorization: Bearer {{tokenAnalista}}
+Content-Type: multipart/form-data; boundary=limite
+
+--limite
+Content-Disposition: form-data; name="descricao"
+
+Vistoria do salão de festas
+--limite
+Content-Disposition: form-data; name="endereco"
+
+Av. Brasil, 500 - Condomínio Sol
+--limite
+Content-Disposition: form-data; name="idOperadorResponsavel"
+
+2
+--limite--
+
+### Alterar / finalizar vistoria
+PUT {{url}}/vistorias/1
+Authorization: Bearer {{tokenAnalista}}
+Content-Type: application/json
+
+{
+  "descricao": "Vistoria de entrega do apartamento 101.",
+  "endereco": "Rua das Flores, 123 - Apto 101 - Centro",
+  "idOperadorResponsavel": 2,
+  "status": "FINALIZADA"
+}
+
+### Operador tentando criar vistoria (deve retornar 403)
+POST {{url}}/vistorias
+Authorization: Bearer {{tokenOperador}}
+
+### ---------------- OCORRÊNCIAS ----------------
+
+### Registrar ocorrência (operador)
+POST {{url}}/vistorias/1/ocorrencias
+Authorization: Bearer {{tokenOperador}}
+Content-Type: multipart/form-data; boundary=limite
+
+--limite
+Content-Disposition: form-data; name="classificacao"
+
+ALTA
+--limite
+Content-Disposition: form-data; name="descricao"
+
+Fissura na viga da garagem.
+--limite--
+
+### Histórico de ocorrências
+GET {{url}}/ocorrencias?classificacao=ALTA
+Authorization: Bearer {{tokenAnalista}}
+
+### Ocorrências da vistoria 1
+GET {{url}}/vistorias/1/ocorrencias
+Authorization: Bearer {{tokenOperador}}
