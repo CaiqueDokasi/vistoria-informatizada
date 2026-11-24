@@ -1,0 +1,50 @@
+/* Estilos das telas de vistorias (lista e formulário) */
+
+body {
+  background-color: #f4f6f9;
+}
+
+/* Cartão de cada vistoria na lista */
+.card-vistoria {
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.card-vistoria:hover {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+/* Foto do cartão: mesma altura para todas, cortando o excesso */
+.card-vistoria .foto {
+  height: 180px;
+  object-fit: cover;
+}
+
+/* Quando a vistoria não tem foto, mostra um quadro cinza com ícone */
+.sem-foto {
+  height: 180px;
+  background-color: #e9ecef;
+  color: #adb5bd;
+  font-size: 3rem;
+}
+
+/* Descrição limitada a 3 linhas no cartão */
+.descricao-curta {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Pré-visualização da foto no formulário */
+.preview-foto {
+  max-height: 220px;
+  object-fit: cover;
+}
+
+/* Miniaturas das fotos já cadastradas (tela de edição) */
+.miniatura {
+  width: 90px;
+  height: 90px;
+  object-fit: cover;
+}

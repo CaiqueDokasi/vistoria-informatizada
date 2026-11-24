@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vistorias - Vistoria Informatizada</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="css/vistorias.css" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Menu superior: nome do sistema, usuário logado e botão Sair -->
+  <nav class="navbar navbar-dark bg-primary">
+    <div class="container">
+      <a class="navbar-brand fw-semibold" href="vistorias.html">
+        <i class="bi bi-clipboard-check"></i> Vistoria Informatizada
+      </a>
+      <div class="d-flex align-items-center gap-3 text-white">
+        <span><i class="bi bi-person-circle"></i> <span id="nomeUsuario"></span>
+          <small class="opacity-75">(<span id="cargoUsuario"></span>)</small></span>
+        <button id="btnSair" class="btn btn-outline-light btn-sm">
+          <i class="bi bi-box-arrow-right"></i> Sair
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container py-4">
+
+    <!-- Título e botão Nova vistoria (só aparece para o Analista) -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+      <div>
+        <h1 class="h3 mb-0">Vistorias</h1>
+        <small class="text-muted" id="totalVistorias"></small>
+      </div>
+      <a href="vistoria-form.html" id="btnNova" class="btn btn-primary d-none">
+        <i class="bi bi-plus-lg"></i> Nova vistoria
+      </a>
+    </div>
+
+    <!-- Filtros: status e endereço -->
+    <form id="formFiltros" class="card card-body mb-4">
+      <div class="row g-2 align-items-end">
+        <div class="col-md-3">
+          <label for="filtroStatus" class="form-label">Status</label>
+          <select id="filtroStatus" class="form-select">
+            <option value="">Todos</option>
+            <option value="ABERTA">Aberta</option>
+            <option value="FINALIZADA">Finalizada</option>
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label for="filtroEndereco" class="form-label">Endereço</label>
+          <input type="text" id="filtroEndereco" class="form-control" placeholder="Ex.: Rua das Flores">
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+          <button type="submit" class="btn btn-primary flex-fill">
+            <i class="bi bi-search"></i> Filtrar
+          </button>
+          <button type="button" id="btnLimpar" class="btn btn-outline-secondary">Limpar</button>
+        </div>
+      </div>
+    </form>
+
+    <!-- Área de mensagens (erros e sucesso) -->
+    <div id="mensagem"></div>
+
+    <!-- Carregando -->
+    <div id="carregando" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status"></div>
+      <p class="mt-2 text-muted">Carregando vistorias...</p>
+    </div>
+
+    <!-- Lista de vistorias: os cartões são criados pelo JavaScript -->
+    <div id="listaVistorias" class="row g-4"></div>
+
+    <!-- Mostrado quando nenhuma vistoria é encontrada -->
+    <div id="vazio" class="text-center py-5 text-muted d-none">
+      <i class="bi bi-inbox fs-1"></i>
+      <p class="mt-2">Nenhuma vistoria encontrada.</p>
+    </div>
+  </main>
+
+  <!-- Modelo usado quando a foto da vistoria não carrega -->
+  <template id="modeloSemFoto">
+    <div class="sem-foto card-img-top d-flex align-items-center justify-content-center">
+      <i class="bi bi-image"></i>
+    </div>
+  </template>
+
+  <!-- Janela de confirmação da exclusão -->
+  <div class="modal fade" id="modalExcluir" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Excluir vistoria</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p>Deseja excluir a vistoria <strong id="excluirCodigo"></strong>?</p>
+          <p class="text-muted mb-0" id="excluirEndereco"></p>
+          <p class="text-danger small mt-3 mb-0">
+            <i class="bi bi-exclamation-triangle"></i>
+            As fotos e ocorrências desta vistoria também serão excluídas.
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" id="btnConfirmarExcluir" class="btn btn-danger">
+            <i class="bi bi-trash"></i> Excluir
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/vistorias.js"></script>
+</body>
+</html>
