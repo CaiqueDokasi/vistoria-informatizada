@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detalhes da Vistoria - Vistoria Informatizada</title>
+  <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+  <header class="navbar">
+    <div class="navbar-conteudo">
+      <a href="index.html" class="navbar-marca">Vistoria Informatizada</a>
+      <nav class="navbar-links">
+        <a href="index.html">Início</a>
+        <a href="vistoria-detalhes.html" class="ativo">Detalhes da Vistoria</a>
+        <a href="ocorrencia-form.html">Nova Ocorrência</a>
+        <a href="ocorrencias.html">Histórico de Ocorrências</a>
+      </nav>
+      <div class="navbar-usuario">
+        <span id="nomeUsuarioLogado"></span>
+        <select id="seletorPerfil" title="Trocar perfil para teste">
+          <option value="operador">Operador</option>
+          <option value="analista">Analista</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="cabecalho-pagina">
+      <div>
+        <h1>Detalhes da Vistoria</h1>
+        <p class="subtitulo">Consulte os dados, fotos e ocorrências registradas.</p>
+      </div>
+      <div class="acoes-linha">
+        <a href="ocorrencias.html" class="btn">Ver histórico geral</a>
+        <a id="btnNovaOcorrencia" href="ocorrencia-form.html" class="btn btn-primario oculto">+ Nova ocorrência</a>
+      </div>
+    </div>
+
+    <!-- Seletor prático para navegar entre as vistorias cadastradas -->
+    <div class="card">
+      <div class="filtros">
+        <div class="form-grupo">
+          <label for="seletorVistoria">Selecionar vistoria</label>
+          <select id="seletorVistoria" class="form-controle">
+            <option value="">Carregando vistorias...</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div id="mensagemErro" class="alerta oculto"></div>
+
+    <!-- Dados principais da vistoria -->
+    <section id="secaoDados" class="card oculto">
+      <div class="card-titulo">
+        <span>Vistoria #<span id="vistoriaId"></span></span>
+        <span id="vistoriaStatus" class="badge"></span>
+      </div>
+
+      <div class="grade-info">
+        <div class="campo-info">
+          <strong>Data de abertura</strong>
+          <span id="vistoriaData"></span>
+        </div>
+        <div class="campo-info">
+          <strong>Operador responsável</strong>
+          <span id="vistoriaResponsavel"></span>
+        </div>
+        <div class="campo-info">
+          <strong>Endereço</strong>
+          <span id="vistoriaEndereco"></span>
+        </div>
+      </div>
+
+      <div class="campo-info">
+        <strong>Descrição</strong>
+        <p id="vistoriaDescricao"></p>
+      </div>
+    </section>
+
+    <!-- Fotos da vistoria -->
+    <section id="secaoFotos" class="card oculto">
+      <div class="card-titulo">
+        <span>Fotos da vistoria</span>
+      </div>
+      <div id="listaFotos"></div>
+    </section>
+
+    <!-- Ocorrências da vistoria -->
+    <section id="secaoOcorrencias" class="card oculto">
+      <div class="card-titulo">
+        <span>Ocorrências registradas</span>
+        <span id="totalOcorrencias" class="subtitulo"></span>
+      </div>
+
+      <div id="listaOcorrencias"></div>
+
+      <!-- Caixa exibida ao clicar em "Ver foto" de uma ocorrência -->
+      <div id="detalheOcorrencia" class="caixa-detalhe-ocorrencia oculto"></div>
+    </section>
+  </main>
+
+  <script src="js/comum.js"></script>
+  <script src="js/vistoria-detalhes.js"></script>
+</body>
+</html>

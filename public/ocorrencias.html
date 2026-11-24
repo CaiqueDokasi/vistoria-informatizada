@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Histórico de Ocorrências - Vistoria Informatizada</title>
+  <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+  <header class="navbar">
+    <div class="navbar-conteudo">
+      <a href="index.html" class="navbar-marca">Vistoria Informatizada</a>
+      <nav class="navbar-links">
+        <a href="index.html">Início</a>
+        <a href="vistoria-detalhes.html">Detalhes da Vistoria</a>
+        <a href="ocorrencia-form.html">Nova Ocorrência</a>
+        <a href="ocorrencias.html" class="ativo">Histórico de Ocorrências</a>
+      </nav>
+      <div class="navbar-usuario">
+        <span id="nomeUsuarioLogado"></span>
+        <select id="seletorPerfil" title="Trocar perfil para teste">
+          <option value="operador">Operador</option>
+          <option value="analista">Analista</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="cabecalho-pagina">
+      <div>
+        <h1>Histórico de Ocorrências</h1>
+        <p class="subtitulo">Consulte todas as ocorrências registradas nas vistorias.</p>
+      </div>
+      <a id="btnNovaOcorrencia" href="ocorrencia-form.html" class="btn btn-primario oculto">+ Nova ocorrência</a>
+    </div>
+
+    <!-- Filtros -->
+    <section class="card">
+      <div class="filtros">
+        <div class="form-grupo">
+          <label for="filtroVistoria">Filtrar por vistoria</label>
+          <select id="filtroVistoria" class="form-controle">
+            <option value="">Todas as vistorias</option>
+          </select>
+        </div>
+
+        <div class="form-grupo">
+          <label for="filtroClassificacao">Filtrar por classificação</label>
+          <select id="filtroClassificacao" class="form-controle">
+            <option value="">Todas</option>
+            <option value="BAIXA">Baixa</option>
+            <option value="MEDIA">Média</option>
+            <option value="ALTA">Alta</option>
+            <option value="CRITICA">Crítica</option>
+          </select>
+        </div>
+
+        <div>
+          <button type="button" id="btnLimparFiltros" class="btn">Limpar filtros</button>
+        </div>
+      </div>
+    </section>
+
+    <div id="mensagemErro" class="alerta oculto"></div>
+
+    <!-- Tabela de ocorrências -->
+    <section class="card">
+      <div class="card-titulo">
+        <span>Ocorrências encontradas</span>
+        <span id="totalRegistros" class="subtitulo"></span>
+      </div>
+
+      <div class="tabela-responsiva">
+        <table>
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Endereço da vistoria</th>
+              <th>Classificação</th>
+              <th>Descrição</th>
+              <th>Operador</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tabelaOcorrencias">
+            <tr>
+              <td colspan="6">Carregando ocorrências...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Caixa exibida ao clicar em "Ver foto" -->
+      <div id="detalheOcorrencia" class="caixa-detalhe-ocorrencia oculto"></div>
+    </section>
+  </main>
+
+  <script src="js/comum.js"></script>
+  <script src="js/ocorrencias.js"></script>
+</body>
+</html>
