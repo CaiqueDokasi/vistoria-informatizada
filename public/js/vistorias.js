@@ -4,10 +4,10 @@
 
 // ---------------------------------------------------------------------
 // 1. Usuário logado
-// O login guarda os dados do usuário no localStorage com a chave "usuario".
+// O login guarda os dados do usuário no localStorage com a chave "usuarioLogado".
 // Se não houver ninguém logado, volta para a tela de login.
 // ---------------------------------------------------------------------
-const usuario = JSON.parse(localStorage.getItem('usuario'));
+const usuario = JSON.parse(localStorage.getItem('usuarioLogado'));
 
 if (!usuario) {
   window.location.href = 'login.html';
@@ -25,7 +25,7 @@ if (podeGerenciar) {
 }
 
 document.getElementById('btnSair').addEventListener('click', () => {
-  localStorage.removeItem('usuario');
+  localStorage.removeItem('usuarioLogado');
   window.location.href = 'login.html';
 });
 

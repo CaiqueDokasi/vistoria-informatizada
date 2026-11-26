@@ -7,7 +7,7 @@
 // ---------------------------------------------------------------------
 // 1. Usuário logado: só quem tem GERENCIAR_VISTORIAS (Analista) entra aqui
 // ---------------------------------------------------------------------
-const usuario = JSON.parse(localStorage.getItem('usuario'));
+const usuario = JSON.parse(localStorage.getItem('usuarioLogado'));
 
 if (!usuario) {
   window.location.href = 'login.html';
@@ -22,7 +22,7 @@ document.getElementById('nomeUsuario').textContent = usuario.nome;
 document.getElementById('cargoUsuario').textContent = usuario.cargo;
 
 document.getElementById('btnSair').addEventListener('click', () => {
-  localStorage.removeItem('usuario');
+  localStorage.removeItem('usuarioLogado');
   window.location.href = 'login.html';
 });
 
