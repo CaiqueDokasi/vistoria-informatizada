@@ -1,0 +1,228 @@
+/* =====================================================================
+   Telas de vistorias (lista e formulário) - complementa o estilo.css
+   ===================================================================== */
+
+/* Usuário logado no menu: nome em cima e cargo embaixo */
+.usuario-logado {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  line-height: 1.2;
+}
+
+.usuario-logado strong {
+  font-size: 0.9rem;
+}
+
+/* Cabeçalho da página */
+.painel-cabecalho {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.painel-cabecalho h1 {
+  font-size: 1.75rem;
+  margin-bottom: 4px;
+}
+
+/* Filtros: busca ocupa o espaço maior e o status fica ao lado */
+.painel-filtros {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+}
+
+/* Grade de cartões */
+.lista-vistorias {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.cartao-vistoria {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: var(--cor-card);
+  border: 1px solid var(--cor-borda);
+  border-radius: 10px;
+  box-shadow: var(--cor-sombra-suave);
+  transition: var(--transicao);
+}
+
+.cartao-vistoria:hover {
+  box-shadow: var(--cor-sombra-card);
+  transform: translateY(-2px);
+}
+
+/* Capa colorida do cartão (com ou sem foto) */
+.cartao-capa {
+  position: relative;
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  color: #ffffff;
+  font-size: 1.05rem;
+  text-align: center;
+}
+
+.cartao-capa img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.capa-azul   { background: linear-gradient(135deg, #1e3a8a, #3b82f6); }
+.capa-verde  { background: linear-gradient(135deg, #0f766e, #14b8a6); }
+.capa-cinza  { background: linear-gradient(135deg, #334155, #64748b); }
+
+/* Etiqueta de status por cima da capa */
+.cartao-capa .badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 1;
+}
+
+.cartao-corpo {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 20px;
+}
+
+.cartao-codigo {
+  color: var(--cor-primaria);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+
+.cartao-endereco {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.cartao-descricao {
+  color: var(--cor-texto-suave);
+  font-size: 0.9rem;
+  margin-bottom: 16px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Rodapé: responsável à esquerda, data à direita */
+.cartao-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--cor-borda);
+  color: var(--cor-texto-suave);
+  font-size: 0.85rem;
+}
+
+.cartao-acoes {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.cartao-acoes .btn-primario {
+  flex: 1;
+}
+
+/* Excluir com borda vermelha, mais discreto que o botão principal */
+.cartao-acoes .btn-excluir {
+  color: var(--cor-perigo);
+  background-color: var(--cor-card);
+  border-color: #fecaca;
+}
+
+.cartao-acoes .btn-excluir:hover {
+  color: #ffffff;
+  background-color: var(--cor-perigo);
+}
+
+/* Janela de confirmação de exclusão */
+.modal-fundo {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background-color: rgba(15, 23, 42, 0.5);
+}
+
+.modal-fundo.oculto {
+  display: none;
+}
+
+.modal-fundo .card {
+  width: 100%;
+  max-width: 440px;
+  margin: 0;
+}
+
+/* Formulário */
+.form-vistoria {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.form-linha {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+}
+
+/* No cadastro o campo status fica escondido: o operador ocupa a linha toda */
+.form-linha:has(.oculto) {
+  grid-template-columns: 1fr;
+}
+
+.caminho {
+  font-size: 0.85rem;
+  color: var(--cor-texto-suave);
+  margin-bottom: 6px;
+}
+
+.caminho a {
+  color: var(--cor-primaria);
+  text-decoration: none;
+}
+
+.ajuda-campo {
+  display: block;
+  margin-top: 6px;
+  color: var(--cor-texto-suave);
+  font-size: 0.8rem;
+}
+
+.campo-invalido {
+  border-color: var(--cor-perigo) !important;
+}
+
+@media (max-width: 640px) {
+  .painel-cabecalho,
+  .painel-filtros,
+  .form-linha {
+    grid-template-columns: 1fr;
+    flex-direction: column;
+  }
+}

@@ -3,74 +3,85 @@
 // =====================================================================
 
 (() => {
-// 1. Autenticação via AUTH (auth.js)
+// ---------------------------------------------------------------------
+// 1. Usuário logado (auth.js)
+// ---------------------------------------------------------------------
 const usuario = AUTH.exigirAutenticacao();
 if (!usuario) return;
 
+// O Analista tem a permissão GERENCIAR_VISTORIAS (incluir, editar e excluir)
 const podeGerenciar = (usuario.permissoes || []).includes('GERENCIAR_VISTORIAS');
 
-// Exibe nome do usuário
-document.getElementById('nomeUsuario').textContent = `${usuario.nome} (${usuario.cargo})`;
+// Nome e cargo no menu superior
+const cargo = usuario.cargo || '';
+document.getElementById('nomeUsuario').textContent = usuario.nome;
+const badgeCargo = document.getElementById('cargoUsuario');
+badgeCargo.textContent = cargo;
+badgeCargo.classList.add('badge-' + cargo.toLowerCase());
 
-// Mostra "Usuários" no menu só para Analista
-if ((usuario.cargo || '').toLowerCase() === 'analista') {
-  const linkU = document.getElementById('linkUsuarios');
-  if (linkU) linkU.classList.remove('oculto');
+if (cargo.toLowerCase() === 'analista') {
+  document.getElementById('linkUsuarios').classList.remove('oculto');
 }
-
-// Mostra botão Nova Vistoria só para Analista
 if (podeGerenciar) {
   document.getElementById('btnNova').classList.remove('oculto');
 }
 
-// Botão Sair
 document.getElementById('btnSair').addEventListener('click', () => AUTH.logout());
 
 // ---------------------------------------------------------------------
 // 2. Funções de apoio
 // ---------------------------------------------------------------------
+
+// Evita que um texto digitado vire código HTML na página
 function escapar(texto) {
   const div = document.createElement('div');
   div.textContent = texto ?? '';
   return div.innerHTML;
 }
 
+// "2026-11-22 10:30:00" -> "22/11/2026"
 function formatarData(data) {
   if (!data) return '-';
-  const [dia, hora] = data.split(' ');
-  const [ano, mes, d] = dia.split('-');
-  return `${d}/${mes}/${ano}${hora ? ' às ' + hora.slice(0, 5) : ''}`;
+  const [ano, mes, dia] = data.split(' ')[0].split('-');
+  return `${dia}/${mes}/${ano}`;
+}
+
+// Código da vistoria: ano de abertura + número. Ex.: VIS-2026-001
+function codigoVistoria(v) {
+  const ano = (v.data_criacao || '').slice(0, 4);
+  return `VIS-${ano}-${String(v.id).padStart(3, '0')}`;
+}
+
+function badgeStatus(status) {
+  return status === 'ABERTA'
+    ? '<span class="badge badge-aberta">Aberta</span>'
+    : '<span class="badge badge-finalizada">Finalizada</span>';
 }
 
 function mostrarMensagem(texto, tipo = 'erro') {
   const el = document.getElementById('mensagem');
   el.className = `alerta alerta-${tipo}`;
   el.textContent = texto;
-  el.classList.remove('oculto');
 }
 
 // ---------------------------------------------------------------------
-// 3. Buscar e mostrar as vistorias
+// 3. Buscar as vistorias na API
+// O status é filtrado pela API; a busca por texto é feita aqui na página.
 // ---------------------------------------------------------------------
+let vistorias = [];
+
 async function carregarVistorias() {
   const status = document.getElementById('filtroStatus').value;
-  const endereco = document.getElementById('filtroEndereco').value.trim();
-
-  const filtros = new URLSearchParams();
-  if (status) filtros.append('status', status);
-  if (endereco) filtros.append('endereco', endereco);
 
   document.getElementById('carregando').classList.remove('oculto');
-  document.getElementById('listaVistorias').innerHTML = '';
-  document.getElementById('vazio').classList.add('oculto');
 
   try {
-    const resposta = await fetch('/api/vistorias?' + filtros);
-    const vistorias = await resposta.json();
+    const resposta = await fetch('/api/vistorias' + (status ? '?status=' + status : ''));
+    const dados = await resposta.json();
+    if (!resposta.ok) throw new Error(dados.erro);
 
-    if (!resposta.ok) throw new Error(vistorias.erro);
-
-    mostrarVistorias(vistorias);
+    vistorias = dados;
+    mostrarVistorias();
   } catch (erro) {
     mostrarMensagem('Não foi possível carregar as vistorias. ' + erro.message);
   } finally {
@@ -78,77 +89,80 @@ async function carregarVistorias() {
   }
 }
 
-function statusBadge(status) {
-  return status === 'ABERTA'
-    ? '<span class="badge badge-aberta">Aberta</span>'
-    : '<span class="badge badge-finalizada">Finalizada</span>';
-}
+// ---------------------------------------------------------------------
+// 4. Mostrar os cartões
+// ---------------------------------------------------------------------
+const cores = ['capa-azul', 'capa-verde', 'capa-cinza'];
 
-function mostrarVistorias(vistorias) {
-  const lista = document.getElementById('listaVistorias');
-  const totalEl = document.getElementById('totalVistorias');
+function mostrarVistorias() {
+  const busca = document.getElementById('filtroBusca').value.trim().toLowerCase();
 
-  totalEl.textContent = vistorias.length === 1 ? '1 vistoria' : `${vistorias.length} vistorias`;
+  // Procura o texto no endereço, no código e no nome do responsável
+  const filtradas = vistorias.filter((v) =>
+    [v.endereco, codigoVistoria(v), v.responsavel]
+      .some((campo) => (campo || '').toLowerCase().includes(busca))
+  );
 
-  if (vistorias.length === 0) {
-    document.getElementById('vazio').classList.remove('oculto');
-    return;
-  }
+  document.getElementById('vazio').classList.toggle('oculto', filtradas.length > 0);
 
-  lista.innerHTML = `<div class="grade-vistorias">
-    ${vistorias.map((v) => {
-      const fotoHtml = v.foto
-        ? `<img src="${escapar(v.foto)}" alt="Foto" class="card-vistoria-foto" onerror="this.style.display='none'">`
-        : '<div class="card-vistoria-sem-foto">🏠</div>';
+  document.getElementById('listaVistorias').innerHTML = filtradas.map((v) => {
+    // Capa: a foto da vistoria, ou uma cor com o início do endereço
+    const titulo = escapar(v.endereco.split(' - ')[0]);
+    const foto = v.foto
+      ? `<img src="${escapar(v.foto)}" alt="Foto do local" onerror="this.remove()">`
+      : '';
 
-      const botoesAnalista = podeGerenciar
-        ? `<a href="vistoria-form.html?id=${v.id}" class="btn btn-pequeno">✏️ Editar</a>
-           <button class="btn btn-perigo btn-pequeno btn-excluir" data-id="${v.id}" data-endereco="${escapar(v.endereco)}">🗑️</button>`
-        : '';
+    // Editar e Excluir só para o Analista
+    const botoesAnalista = podeGerenciar
+      ? `<a href="vistoria-form.html?id=${v.id}" class="btn btn-pequeno">Editar</a>
+         <button type="button" class="btn btn-pequeno btn-perigo btn-excluir" title="Excluir"
+                 data-id="${v.id}" data-codigo="${codigoVistoria(v)}"
+                 data-endereco="${escapar(v.endereco)}">🗑️</button>`
+      : '';
 
-      return `
-        <div class="card card-vistoria">
-          ${fotoHtml}
-          <div class="card-vistoria-conteudo">
-            <div class="acoes-linha card-vistoria-cabecalho">
-              <strong class="card-vistoria-codigo">#${String(v.id).padStart(4, '0')}</strong>
-              ${statusBadge(v.status)}
-            </div>
-            <p class="card-vistoria-endereco">📍 ${escapar(v.endereco)}</p>
-            <p class="subtitulo card-vistoria-descricao">${escapar(v.descricao)}</p>
-            <p class="subtitulo card-vistoria-meta">📅 ${formatarData(v.data_criacao)} · 👤 ${escapar(v.responsavel || '-')}</p>
-            <div class="acoes-linha">
-              <a href="vistoria-detalhes.html?id=${v.id}" class="btn btn-primario btn-pequeno card-vistoria-detalhes">Ver detalhes</a>
-              ${botoesAnalista}
-            </div>
+    return `
+      <article class="cartao-vistoria">
+        <div class="cartao-capa ${cores[v.id % cores.length]}">
+          🏢 ${titulo}
+          ${foto}
+          ${badgeStatus(v.status)}
+        </div>
+        <div class="cartao-corpo">
+          <span class="cartao-codigo">${codigoVistoria(v)}</span>
+          <h2 class="cartao-endereco">${escapar(v.endereco)}</h2>
+          <p class="cartao-descricao">${escapar(v.descricao)}</p>
+          <div class="cartao-meta">
+            <span>👤 Resp: ${escapar(v.responsavel || '-')}</span>
+            <span>📅 ${formatarData(v.data_criacao)}</span>
           </div>
-        </div>`;
-    }).join('')}
-  </div>`;
+          <div class="cartao-acoes">
+            <a href="vistoria-detalhes.html?id=${v.id}" class="btn btn-primario btn-pequeno">Ver detalhes</a>
+            ${botoesAnalista}
+          </div>
+        </div>
+      </article>`;
+  }).join('');
 }
 
 // ---------------------------------------------------------------------
-// 4. Filtros
+// 5. Filtros
 // ---------------------------------------------------------------------
-document.getElementById('btnFiltrar').addEventListener('click', carregarVistorias);
+document.getElementById('filtroBusca').addEventListener('input', mostrarVistorias);
 document.getElementById('filtroStatus').addEventListener('change', carregarVistorias);
-document.getElementById('btnLimpar').addEventListener('click', () => {
-  document.getElementById('filtroStatus').value = '';
-  document.getElementById('filtroEndereco').value = '';
-  carregarVistorias();
-});
 
 // ---------------------------------------------------------------------
-// 5. Excluir vistoria
+// 6. Excluir vistoria (com confirmação)
 // ---------------------------------------------------------------------
-let idParaExcluir = null;
 const modalExcluir = document.getElementById('modalExcluir');
+let idParaExcluir = null;
 
-document.getElementById('listaVistorias').addEventListener('click', (ev) => {
-  const botao = ev.target.closest('.btn-excluir');
+// Os botões são criados depois, então o clique é tratado na lista
+document.getElementById('listaVistorias').addEventListener('click', (evento) => {
+  const botao = evento.target.closest('.btn-excluir');
   if (!botao) return;
+
   idParaExcluir = botao.dataset.id;
-  document.getElementById('excluirCodigo').textContent = '#' + String(idParaExcluir).padStart(4, '0');
+  document.getElementById('excluirCodigo').textContent = botao.dataset.codigo;
   document.getElementById('excluirEndereco').textContent = botao.dataset.endereco;
   modalExcluir.classList.remove('oculto');
 });
@@ -158,20 +172,22 @@ document.getElementById('btnCancelarExcluir').addEventListener('click', () => {
 });
 
 document.getElementById('btnConfirmarExcluir').addEventListener('click', async () => {
+  modalExcluir.classList.add('oculto');
   try {
     const resposta = await fetch('/api/vistorias/' + idParaExcluir, { method: 'DELETE' });
     const dados = await resposta.json();
     if (!resposta.ok) throw new Error(dados.erro);
-    modalExcluir.classList.add('oculto');
+
     mostrarMensagem('Vistoria excluída com sucesso.', 'sucesso');
     carregarVistorias();
   } catch (erro) {
-    modalExcluir.classList.add('oculto');
-    mostrarMensagem('Não foi possível excluir. ' + erro.message);
+    mostrarMensagem('Não foi possível excluir a vistoria. ' + erro.message);
   }
 });
 
-// 6. Mensagem de sucesso vinda do formulário
+// ---------------------------------------------------------------------
+// 7. Aviso vindo do formulário (ex.: "Vistoria cadastrada")
+// ---------------------------------------------------------------------
 const aviso = sessionStorage.getItem('aviso');
 if (aviso) {
   mostrarMensagem(aviso, 'sucesso');

@@ -7,8 +7,11 @@
 const usuario = AUTH.exigirCargo(['Analista']);
 if (!usuario) return;
 
-// Exibe nome
-document.getElementById('nomeUsuario').textContent = `${usuario.nome} (${usuario.cargo})`;
+// Nome e cargo no menu superior
+document.getElementById('nomeUsuario').textContent = usuario.nome;
+const badgeCargo = document.getElementById('cargoUsuario');
+badgeCargo.textContent = usuario.cargo;
+badgeCargo.classList.add('badge-' + (usuario.cargo || '').toLowerCase());
 
 // Mostra "Usuários" no menu
 const linkU = document.getElementById('linkUsuarios');
@@ -40,6 +43,7 @@ function mostrarMensagem(texto, tipo = 'erro') {
   el.className = `alerta alerta-${tipo}`;
   el.textContent = texto;
   el.classList.remove('oculto');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // 3. Carrega lista de operadores no select
@@ -49,7 +53,7 @@ async function carregarOperadores() {
   if (!resposta.ok) throw new Error(usuarios.erro);
 
   const operadores = usuarios.filter((u) => u.cargo === 'Operador');
-  campos.operador.innerHTML = operadores.map(
+  campos.operador.innerHTML = '<option value="">Selecione...</option>' + operadores.map(
     (u) => `<option value="${u.id}">${escapar(u.nome)}</option>`
   ).join('');
 }
@@ -60,9 +64,11 @@ async function carregarVistoria() {
   const vistoria = await resposta.json();
   if (!resposta.ok) throw new Error(vistoria.erro);
 
-  const codigo = '#' + String(vistoria.id).padStart(4, '0');
-  document.title = `Editar vistoria ${codigo} - Vistoria Informatizada`;
-  document.getElementById('titulo').textContent = 'Editar vistoria ' + codigo;
+  // Código no mesmo formato da lista. Ex.: VIS-2026-001
+  const codigo = `VIS-${vistoria.data_criacao.slice(0, 4)}-${String(vistoria.id).padStart(3, '0')}`;
+  document.title = `Editar ${codigo} - Vistoria Informatizada`;
+  document.getElementById('titulo').textContent = 'Editar Vistoria';
+  document.getElementById('subtitulo').textContent = `${codigo} · Responsável: ${vistoria.responsavel}`;
   document.getElementById('caminhoAtual').textContent = 'Editar ' + codigo;
 
   campos.endereco.value = vistoria.endereco;
@@ -82,6 +88,7 @@ async function carregarVistoria() {
   }
 
   document.getElementById('rotuloFoto').textContent = 'Adicionar nova foto (link)';
+  document.getElementById('ajudaFoto').textContent = 'Opcional. Deixe em branco para manter apenas as fotos atuais.';
 }
 
 // 5. Pré-visualização da foto
@@ -103,7 +110,10 @@ document.getElementById('formVistoria').addEventListener('submit', async (evento
   campos.endereco.value = campos.endereco.value.trim();
   campos.descricao.value = campos.descricao.value.trim();
 
-  if (!campos.endereco.value || !campos.descricao.value || !campos.operador.value) {
+  // Marca em vermelho os campos obrigatórios vazios
+  const obrigatorios = [campos.endereco, campos.descricao, campos.operador];
+  obrigatorios.forEach((c) => c.classList.toggle('campo-invalido', !c.value));
+  if (obrigatorios.some((c) => !c.value)) {
     mostrarMensagem('Preencha todos os campos obrigatórios.');
     return;
   }
@@ -140,7 +150,7 @@ document.getElementById('formVistoria').addEventListener('submit', async (evento
   } catch (erro) {
     mostrarMensagem('Não foi possível salvar. ' + erro.message);
     botao.disabled = false;
-    botao.textContent = 'Salvar';
+    botao.textContent = 'Salvar vistoria';
   }
 });
 
