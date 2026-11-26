@@ -11,17 +11,15 @@
     <div class="navbar-conteudo">
       <a href="index.html" class="navbar-marca">Vistoria Informatizada</a>
       <nav class="navbar-links">
-        <a href="index.html">Início</a>
+        <a href="vistorias.html">Vistorias</a>
         <a href="vistoria-detalhes.html">Detalhes da Vistoria</a>
         <a href="ocorrencia-form.html" class="ativo">Nova Ocorrência</a>
         <a href="ocorrencias.html">Histórico de Ocorrências</a>
+        <a href="usuarios.html" id="linkUsuarios" class="oculto">Usuários</a>
       </nav>
       <div class="navbar-usuario">
         <span id="nomeUsuarioLogado"></span>
-        <select id="seletorPerfil" title="Trocar perfil para teste">
-          <option value="operador">Operador</option>
-          <option value="analista">Analista</option>
-        </select>
+        <button type="button" id="btnSair" class="btn btn-pequeno btn-navbar">Sair</button>
       </div>
     </div>
   </header>
@@ -46,7 +44,6 @@
             <option value="">Carregando vistorias...</option>
           </select>
         </div>
-
         <div class="form-grupo">
           <label for="classificacao">Classificação</label>
           <select id="classificacao" class="form-controle" required>
@@ -57,31 +54,15 @@
             <option value="CRITICA">Crítica</option>
           </select>
         </div>
-
         <div class="form-grupo">
           <label for="descricao">Descrição da ocorrência</label>
-          <textarea
-            id="descricao"
-            class="form-controle"
-            rows="4"
-            placeholder="Descreva o problema encontrado (ex.: infiltração, rachadura, falha elétrica)..."
-            required
-          ></textarea>
+          <textarea id="descricao" class="form-controle" rows="4" placeholder="Descreva o problema encontrado..." required></textarea>
         </div>
-
         <div id="grupoFoto" class="form-grupo">
           <label for="urlFoto">Link da foto (opcional)</label>
-          <input
-            type="text"
-            id="urlFoto"
-            class="form-controle"
-            placeholder="https://exemplo.com/foto.jpg"
-          >
+          <input type="text" id="urlFoto" class="form-controle" placeholder="https://exemplo.com/foto.jpg">
         </div>
-
-        <!-- Exibido apenas no modo de edição caso a ocorrência já possua foto -->
         <div id="fotosExistentes" class="form-grupo oculto"></div>
-
         <div class="acoes-linha">
           <button type="submit" id="btnSalvar" class="btn btn-primario">Salvar ocorrência</button>
           <a id="btnCancelar" href="vistoria-detalhes.html" class="btn">Cancelar</a>

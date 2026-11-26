@@ -11,17 +11,14 @@
     <div class="navbar-conteudo">
       <a href="index.html" class="navbar-marca">Vistoria Informatizada</a>
       <nav class="navbar-links">
-        <a href="index.html">Início</a>
+        <a href="vistorias.html">Vistorias</a>
         <a href="vistoria-detalhes.html">Detalhes da Vistoria</a>
-        <a href="ocorrencia-form.html">Nova Ocorrência</a>
         <a href="ocorrencias.html" class="ativo">Histórico de Ocorrências</a>
+        <a href="usuarios.html" id="linkUsuarios" class="oculto">Usuários</a>
       </nav>
       <div class="navbar-usuario">
         <span id="nomeUsuarioLogado"></span>
-        <select id="seletorPerfil" title="Trocar perfil para teste">
-          <option value="operador">Operador</option>
-          <option value="analista">Analista</option>
-        </select>
+        <button type="button" id="btnSair" class="btn btn-pequeno btn-navbar">Sair</button>
       </div>
     </div>
   </header>
@@ -35,7 +32,6 @@
       <a id="btnNovaOcorrencia" href="ocorrencia-form.html" class="btn btn-primario oculto">+ Nova ocorrência</a>
     </div>
 
-    <!-- Filtros -->
     <section class="card">
       <div class="filtros">
         <div class="form-grupo">
@@ -44,7 +40,6 @@
             <option value="">Todas as vistorias</option>
           </select>
         </div>
-
         <div class="form-grupo">
           <label for="filtroClassificacao">Filtrar por classificação</label>
           <select id="filtroClassificacao" class="form-controle">
@@ -55,7 +50,6 @@
             <option value="CRITICA">Crítica</option>
           </select>
         </div>
-
         <div>
           <button type="button" id="btnLimparFiltros" class="btn">Limpar filtros</button>
         </div>
@@ -64,13 +58,11 @@
 
     <div id="mensagemErro" class="alerta oculto"></div>
 
-    <!-- Tabela de ocorrências -->
     <section class="card">
       <div class="card-titulo">
         <span>Ocorrências encontradas</span>
         <span id="totalRegistros" class="subtitulo"></span>
       </div>
-
       <div class="tabela-responsiva">
         <table>
           <thead>
@@ -84,14 +76,10 @@
             </tr>
           </thead>
           <tbody id="tabelaOcorrencias">
-            <tr>
-              <td colspan="6">Carregando ocorrências...</td>
-            </tr>
+            <tr><td colspan="6">Carregando ocorrências...</td></tr>
           </tbody>
         </table>
       </div>
-
-      <!-- Caixa exibida ao clicar em "Ver foto" -->
       <div id="detalheOcorrencia" class="caixa-detalhe-ocorrencia oculto"></div>
     </section>
   </main>

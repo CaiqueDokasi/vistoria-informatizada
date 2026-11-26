@@ -3,12 +3,7 @@
 let idVistoriaAtual = null;
 
 document.addEventListener('DOMContentLoaded', () => {
-  iniciarBarraUsuario(() => {
-    atualizarBotoesPermissao();
-    if (idVistoriaAtual) {
-      carregarDetalhesVistoria(idVistoriaAtual);
-    }
-  });
+  if (!iniciarBarraUsuario()) return;
 
   iniciarTela();
 });

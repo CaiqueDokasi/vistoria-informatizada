@@ -4,9 +4,7 @@ let idEdicao = null;
 let idVistoriaPadrao = null;
 
 document.addEventListener('DOMContentLoaded', () => {
-  iniciarBarraUsuario(() => {
-    verificarPermissaoFormulario();
-  });
+  if (!iniciarBarraUsuario()) return;
 
   iniciarFormulario();
 });
@@ -44,7 +42,7 @@ function verificarPermissaoFormulario() {
   if (!podeRegistrar) {
     mostrarMensagem(
       'avisoPermissao',
-      'Apenas usuários com perfil Operador podem cadastrar ou alterar ocorrências. Troque o perfil no topo para testar.',
+      'Apenas usuários com perfil Operador podem cadastrar ou alterar ocorrências.',
       'info'
     );
     btnSalvar.disabled = true;

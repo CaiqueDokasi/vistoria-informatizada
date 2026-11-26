@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastro de Vistoria - Vistoria Informatizada</title>
+  <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+  <header class="navbar">
+    <div class="navbar-conteudo">
+      <a href="index.html" class="navbar-marca">Vistoria Informatizada</a>
+      <nav class="navbar-links">
+        <a href="vistorias.html">Vistorias</a>
+        <a href="vistoria-detalhes.html">Detalhes da Vistoria</a>
+        <a href="ocorrencias.html">Histórico de Ocorrências</a>
+        <a href="usuarios.html" id="linkUsuarios" class="oculto">Usuários</a>
+      </nav>
+      <div class="navbar-usuario">
+        <span id="nomeUsuario"></span>
+        <button type="button" id="btnSair" class="btn btn-pequeno btn-navbar">Sair</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container container-form-vistoria">
+    <div class="cabecalho-pagina">
+      <div>
+        <p class="subtitulo"><a href="vistorias.html">Vistorias</a> / <span id="caminhoAtual">Nova vistoria</span></p>
+        <h1 id="titulo">Nova vistoria</h1>
+      </div>
+      <a href="vistorias.html" class="btn">Cancelar</a>
+    </div>
+
+    <div id="mensagem" class="alerta oculto"></div>
+
+    <section class="card">
+      <form id="formVistoria" novalidate>
+        <div class="form-grupo">
+          <label for="endereco">Endereço *</label>
+          <input type="text" id="endereco" class="form-controle" maxlength="255" required placeholder="Ex.: Rua das Flores, 123 - Centro">
+        </div>
+
+        <div class="form-grupo">
+          <label for="descricao">Descrição *</label>
+          <textarea id="descricao" class="form-controle" rows="4" required placeholder="O que deve ser verificado nesta vistoria?"></textarea>
+        </div>
+
+        <div class="form-grupo">
+          <label for="operador">Operador responsável *</label>
+          <select id="operador" class="form-controle" required>
+            <option value="">Carregando...</option>
+          </select>
+        </div>
+
+        <div class="form-grupo oculto" id="grupoStatus">
+          <label for="status">Status *</label>
+          <select id="status" class="form-controle">
+            <option value="ABERTA">Aberta</option>
+            <option value="FINALIZADA">Finalizada</option>
+          </select>
+        </div>
+
+        <div class="form-grupo oculto" id="grupoFotos">
+          <label>Fotos cadastradas</label>
+          <div id="fotosAtuais" class="fotos-atuais"></div>
+        </div>
+
+        <div class="form-grupo">
+          <label for="urlFoto" id="rotuloFoto">Link da foto do local (opcional)</label>
+          <input type="url" id="urlFoto" class="form-controle" placeholder="https://...">
+          <img id="previewFoto" class="oculto preview-foto-vistoria" alt="Pré-visualização">
+        </div>
+
+        <div class="acoes-linha acoes-finalizadas">
+          <a href="vistorias.html" class="btn">Cancelar</a>
+          <button type="submit" id="btnSalvar" class="btn btn-primario">Salvar</button>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <script src="js/auth.js"></script>
+  <script src="js/vistoria-form.js"></script>
+</body>
+</html>

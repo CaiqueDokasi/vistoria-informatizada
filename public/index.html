@@ -5,34 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Vistoria Informatizada</title>
   <link rel="stylesheet" href="css/estilo.css">
+  <script src="js/auth.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const usuario = AUTH.getUsuario();
+      if (usuario) {
+        window.location.replace('vistorias.html');
+      } else {
+        window.location.replace('login.html');
+      }
+    });
+  </script>
 </head>
 <body>
-  <header class="navbar">
-    <div class="navbar-conteudo">
-      <a href="index.html" class="navbar-marca">Vistoria Informatizada</a>
-      <nav class="navbar-links">
-        <a href="index.html" class="ativo">Início</a>
-        <a href="vistoria-detalhes.html">Detalhes da Vistoria</a>
-        <a href="ocorrencia-form.html">Nova Ocorrência</a>
-        <a href="ocorrencias.html">Histórico de Ocorrências</a>
-      </nav>
-    </div>
-  </header>
-
-  <main class="container">
-    <section class="card">
-      <h1 style="margin-bottom: 8px;">Vistoria Informatizada</h1>
-      <p class="subtitulo" style="margin-bottom: 18px;">
-        Módulo de Ocorrências e Detalhes (Membro 3) funcionando em HTML, CSS e JavaScript puro.
-      </p>
-
-      <div class="acoes-linha">
-        <a href="vistoria-detalhes.html" class="btn btn-primario">Detalhes da Vistoria</a>
-        <a href="ocorrencia-form.html" class="btn">Cadastro de Ocorrência</a>
-        <a href="ocorrencias.html" class="btn">Histórico de Ocorrências</a>
-        <a href="/api/vistorias" class="btn">Testar API (/api/vistorias)</a>
-      </div>
-    </section>
+  <main class="container texto-centralizado estado-carregamento">
+    <p>Redirecionando...</p>
   </main>
 </body>
 </html>

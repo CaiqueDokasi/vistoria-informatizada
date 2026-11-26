@@ -11,17 +11,14 @@
     <div class="navbar-conteudo">
       <a href="index.html" class="navbar-marca">Vistoria Informatizada</a>
       <nav class="navbar-links">
-        <a href="index.html">Início</a>
+        <a href="vistorias.html">Vistorias</a>
         <a href="vistoria-detalhes.html" class="ativo">Detalhes da Vistoria</a>
-        <a href="ocorrencia-form.html">Nova Ocorrência</a>
         <a href="ocorrencias.html">Histórico de Ocorrências</a>
+        <a href="usuarios.html" id="linkUsuarios" class="oculto">Usuários</a>
       </nav>
       <div class="navbar-usuario">
         <span id="nomeUsuarioLogado"></span>
-        <select id="seletorPerfil" title="Trocar perfil para teste">
-          <option value="operador">Operador</option>
-          <option value="analista">Analista</option>
-        </select>
+        <button type="button" id="btnSair" class="btn btn-pequeno btn-navbar">Sair</button>
       </div>
     </div>
   </header>
@@ -38,7 +35,6 @@
       </div>
     </div>
 
-    <!-- Seletor prático para navegar entre as vistorias cadastradas -->
     <div class="card">
       <div class="filtros">
         <div class="form-grupo">
@@ -52,52 +48,30 @@
 
     <div id="mensagemErro" class="alerta oculto"></div>
 
-    <!-- Dados principais da vistoria -->
     <section id="secaoDados" class="card oculto">
       <div class="card-titulo">
         <span>Vistoria #<span id="vistoriaId"></span></span>
         <span id="vistoriaStatus" class="badge"></span>
       </div>
-
       <div class="grade-info">
-        <div class="campo-info">
-          <strong>Data de abertura</strong>
-          <span id="vistoriaData"></span>
-        </div>
-        <div class="campo-info">
-          <strong>Operador responsável</strong>
-          <span id="vistoriaResponsavel"></span>
-        </div>
-        <div class="campo-info">
-          <strong>Endereço</strong>
-          <span id="vistoriaEndereco"></span>
-        </div>
+        <div class="campo-info"><strong>Data de abertura</strong><span id="vistoriaData"></span></div>
+        <div class="campo-info"><strong>Operador responsável</strong><span id="vistoriaResponsavel"></span></div>
+        <div class="campo-info"><strong>Endereço</strong><span id="vistoriaEndereco"></span></div>
       </div>
-
-      <div class="campo-info">
-        <strong>Descrição</strong>
-        <p id="vistoriaDescricao"></p>
-      </div>
+      <div class="campo-info"><strong>Descrição</strong><p id="vistoriaDescricao"></p></div>
     </section>
 
-    <!-- Fotos da vistoria -->
     <section id="secaoFotos" class="card oculto">
-      <div class="card-titulo">
-        <span>Fotos da vistoria</span>
-      </div>
+      <div class="card-titulo"><span>Fotos da vistoria</span></div>
       <div id="listaFotos"></div>
     </section>
 
-    <!-- Ocorrências da vistoria -->
     <section id="secaoOcorrencias" class="card oculto">
       <div class="card-titulo">
         <span>Ocorrências registradas</span>
         <span id="totalOcorrencias" class="subtitulo"></span>
       </div>
-
       <div id="listaOcorrencias"></div>
-
-      <!-- Caixa exibida ao clicar em "Ver foto" de uma ocorrência -->
       <div id="detalheOcorrencia" class="caixa-detalhe-ocorrencia oculto"></div>
     </section>
   </main>

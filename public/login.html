@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Vistoria Informatizada</title>
+  <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body class="login-pagina">
+  <div class="login-card">
+    <div class="login-marca">V</div>
+    <h1 class="login-titulo">Vistoria Informatizada</h1>
+    <p class="login-subtitulo">Entre com suas credenciais para acessar o sistema</p>
+
+    <div id="mensagem-alerta" class="alerta alerta-erro oculto"></div>
+
+    <form id="form-login" novalidate>
+      <div class="form-grupo">
+        <label for="email" class="form-grupo">E-mail</label>
+        <input type="email" id="email" class="form-controle" placeholder="exemplo@vistoria.com" required autocomplete="email">
+      </div>
+      <div class="form-grupo">
+        <label for="senha">Senha</label>
+        <input type="password" id="senha" class="form-controle" placeholder="Digite sua senha" required autocomplete="current-password">
+      </div>
+      <button type="submit" id="btn-entrar" class="btn btn-primario login-entrar">Entrar</button>
+    </form>
+
+    <div class="atalhos">
+      <div class="atalhos-titulo">Usuários de Teste (clique para preencher)</div>
+      <div class="atalhos-btns">
+        <button type="button" class="btn btn-pequeno" id="preencher-analista">🔑 Analista</button>
+        <button type="button" class="btn btn-pequeno" id="preencher-operador">👷 Operador</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script src="js/login.js"></script>
+</body>
+</html>

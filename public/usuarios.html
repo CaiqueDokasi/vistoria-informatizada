@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestão de Usuários - Vistoria Informatizada</title>
+  <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+  <header class="navbar">
+    <div class="navbar-conteudo">
+      <a href="index.html" class="navbar-marca">Vistoria Informatizada</a>
+      <nav class="navbar-links">
+        <a href="vistorias.html">Vistorias</a>
+        <a href="vistoria-detalhes.html">Detalhes da Vistoria</a>
+        <a href="ocorrencias.html">Histórico de Ocorrências</a>
+        <a href="usuarios.html" class="ativo">Usuários</a>
+      </nav>
+      <div class="navbar-usuario">
+        <span id="nomeUsuarioHeader"></span>
+        <button type="button" id="btnSair" class="btn btn-pequeno btn-navbar">Sair</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="cabecalho-pagina">
+      <div>
+        <h1>Gestão de Usuários</h1>
+        <p class="subtitulo">Cadastre, altere e gerencie os analistas e operadores do sistema.</p>
+      </div>
+      <button type="button" class="btn btn-primario" id="btn-novo-usuario">+ Novo Usuário</button>
+    </div>
+
+    <div id="alerta-feedback" class="alerta oculto"></div>
+
+    <section class="card">
+      <div class="form-grupo campo-busca">
+        <input type="text" id="input-busca" class="form-controle" placeholder="🔍 Buscar usuário por nome ou e-mail...">
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="tabela-responsiva">
+        <table id="tabela-usuarios">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nome</th>
+              <th>E-mail</th>
+              <th>Cargo</th>
+              <th class="cabecalho-acoes">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tabela-usuarios-corpo"></tbody>
+        </table>
+      </div>
+      <div id="estado-carregando" class="subtitulo estado-carregamento">Carregando usuários...</div>
+      <div id="estado-vazio" class="subtitulo estado-carregamento oculto">Nenhum usuário encontrado.</div>
+    </section>
+  </main>
+
+  <!-- Modal Criar/Editar Usuário -->
+  <div class="modal-backdrop" id="modal-usuario-backdrop">
+    <div class="modal-caixa">
+      <div class="modal-titulo" id="modal-usuario-titulo">Novo Usuário</div>
+      <div id="modal-usuario-erro" class="alerta alerta-erro oculto"></div>
+      <form id="form-usuario" novalidate>
+        <input type="hidden" id="usuario-id">
+        <div class="form-grupo">
+          <label for="usuario-nome">Nome *</label>
+          <input type="text" id="usuario-nome" class="form-controle" required>
+        </div>
+        <div class="form-grupo">
+          <label for="usuario-email">E-mail *</label>
+          <input type="email" id="usuario-email" class="form-controle" required>
+        </div>
+        <div class="form-grupo">
+          <label for="usuario-senha">Senha *</label>
+          <input type="password" id="usuario-senha" class="form-controle" required placeholder="Mínimo 6 caracteres">
+          <small id="senha-ajuda" class="subtitulo"></small>
+        </div>
+        <div class="form-grupo">
+          <label for="usuario-cargo">Cargo *</label>
+          <select id="usuario-cargo" class="form-controle" required>
+            <option value="">Carregando...</option>
+          </select>
+        </div>
+        <div class="acoes-linha acoes-modal-usuario">
+          <button type="button" id="btn-cancelar-usuario" class="btn">Cancelar</button>
+          <button type="submit" id="btn-salvar-usuario" class="btn btn-primario">Salvar Usuário</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Confirmar Exclusão -->
+  <div class="modal-backdrop" id="modal-excluir-backdrop">
+    <div class="modal-caixa">
+      <div class="modal-titulo">Excluir usuário</div>
+      <p id="modal-excluir-texto"></p>
+      <div class="acoes-linha acoes-modal-exclusao">
+        <button type="button" id="btn-cancelar-exclusao" class="btn">Cancelar</button>
+        <button type="button" id="btn-confirmar-exclusao" class="btn btn-perigo">Sim, Excluir</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script src="js/usuarios.js"></script>
+</body>
+</html>

@@ -3,10 +3,7 @@
 let listaAtual = [];
 
 document.addEventListener('DOMContentLoaded', () => {
-  iniciarBarraUsuario(() => {
-    atualizarBotaoNovaOcorrencia();
-    renderizarTabela();
-  });
+  if (!iniciarBarraUsuario()) return;
 
   iniciarHistorico();
 });

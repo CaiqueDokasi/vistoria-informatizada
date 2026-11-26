@@ -1,27 +1,6 @@
 // Funções compartilhadas entre as telas do sistema
 
-// Usuários de teste baseados no arquivo database/02-seed.sql
-// Usado quando ainda não há um login salvo no localStorage
-const USUARIOS_PADRAO = {
-  operador: {
-    id: 2,
-    nome: 'Otávio Operador',
-    email: 'operador@vistoria.com',
-    id_cargo: 2,
-    cargo: 'Operador',
-    permissoes: ['VISUALIZAR_VISTORIAS', 'REGISTRAR_OCORRENCIAS', 'VISUALIZAR_OCORRENCIAS']
-  },
-  analista: {
-    id: 1,
-    nome: 'Ana Analista',
-    email: 'analista@vistoria.com',
-    id_cargo: 1,
-    cargo: 'Analista',
-    permissoes: ['GERENCIAR_USUARIOS', 'GERENCIAR_VISTORIAS', 'VISUALIZAR_VISTORIAS', 'VISUALIZAR_OCORRENCIAS']
-  }
-};
-
-// Obtém o usuário logado do localStorage ou usa o Operador de teste por padrão
+// Obtém o usuário logado do localStorage — redireciona para login se não houver nenhum
 function obterUsuarioAtual() {
   const salvo = localStorage.getItem('usuarioLogado');
   if (salvo) {
@@ -31,38 +10,42 @@ function obterUsuarioAtual() {
       localStorage.removeItem('usuarioLogado');
     }
   }
-  return USUARIOS_PADRAO.operador;
+  window.location.href = 'login.html';
+  return null;
 }
 
 // Verifica se o usuário atual possui uma permissão específica
 function temPermissao(permissao) {
   const usuario = obterUsuarioAtual();
-  return Array.isArray(usuario.permissoes) && usuario.permissoes.includes(permissao);
+  return Boolean(usuario && Array.isArray(usuario.permissoes) && usuario.permissoes.includes(permissao));
 }
 
-// Preenche o seletor de perfil na barra superior para facilitar testes e apresentação
-function iniciarBarraUsuario(aoTrocarPerfil) {
-  const seletor = document.getElementById('seletorPerfil');
+// Preenche a barra superior com a sessão autenticada
+function iniciarBarraUsuario() {
   const nomeEl = document.getElementById('nomeUsuarioLogado');
   const usuario = obterUsuarioAtual();
+  if (!usuario) return false;
 
   if (nomeEl) {
     nomeEl.textContent = `${usuario.nome} (${usuario.cargo})`;
   }
 
-  if (seletor) {
-    seletor.value = usuario.cargo === 'Analista' ? 'analista' : 'operador';
-    seletor.addEventListener('change', () => {
-      const escolhido = USUARIOS_PADRAO[seletor.value];
-      localStorage.setItem('usuarioLogado', JSON.stringify(escolhido));
-      if (nomeEl) {
-        nomeEl.textContent = `${escolhido.nome} (${escolhido.cargo})`;
-      }
-      if (typeof aoTrocarPerfil === 'function') {
-        aoTrocarPerfil(escolhido);
-      }
+  // Botão Sair
+  const btnSair = document.getElementById('btnSair');
+  if (btnSair) {
+    btnSair.addEventListener('click', () => {
+      localStorage.removeItem('usuarioLogado');
+      window.location.href = 'login.html';
     });
   }
+
+  // Link Usuários só para Analista
+  const linkUsuarios = document.getElementById('linkUsuarios');
+  if (linkUsuarios && (usuario.cargo || '').toLowerCase() === 'analista') {
+    linkUsuarios.classList.remove('oculto');
+  }
+
+  return true;
 }
 
 // Formata "2026-11-22 10:30:00" para "22/11/2026 10:30"
@@ -155,12 +138,12 @@ async function exibirDetalheOcorrencia(idOcorrencia, idCaixa = 'detalheOcorrenci
     const htmlFotos = gerarHtmlGaleriaFotos(oc.fotos, 'Nenhuma foto anexada nesta ocorrência.');
 
     caixa.innerHTML = `
-      <div class="acoes-linha" style="justify-content: space-between; align-items: center; margin-bottom: 8px;">
+      <div class="acoes-linha card-titulo">
         <strong>Ocorrência #${oc.id} — <span class="badge ${cls.classe}">${cls.texto}</span></strong>
         <button type="button" class="btn btn-pequeno" onclick="document.getElementById('${idCaixa}').classList.add('oculto')">Fechar</button>
       </div>
       <p><strong>Data:</strong> ${formatarData(oc.data_criacao)}</p>
-      <p style="margin: 6px 0;"><strong>Descrição:</strong> ${escaparHtml(oc.descricao)}</p>
+      <p class="descricao-detalhe-ocorrencia"><strong>Descrição:</strong> ${escaparHtml(oc.descricao)}</p>
       ${htmlFotos}
     `;
   } catch (erro) {
