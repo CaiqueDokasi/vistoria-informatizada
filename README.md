@@ -17,7 +17,7 @@ O **Analista** cadastra as vistorias que serão realizadas, informando endereço
 
 | Camada | Tecnologia |
 |---|---|
-| Frontend | HTML, CSS, JavaScript e Bootstrap |
+| Frontend | HTML, CSS e JavaScript puro |
 | Backend | Node.js (com a biblioteca Express) |
 | Banco de dados | MySQL |
 
@@ -55,14 +55,22 @@ vistoria-informatizada/
 Pré-requisitos: [Node.js](https://nodejs.org) e [MySQL](https://dev.mysql.com/downloads/) instalados.
 
 1. Clonar o repositório e instalar as dependências:
-   ```bash
+   ```powershell
    git clone https://github.com/CaiqueDokasi/vistoria-informatizada.git
    cd vistoria-informatizada
    npm install
    ```
 2. No MySQL Workbench, abrir e executar os arquivos `database/01-schema.sql` e depois `database/02-seed.sql`.
-3. Abrir `src/db.js` e ajustar o usuário e a senha do MySQL.
-4. Iniciar o servidor:
+3. Configure a conexão MySQL por variáveis de ambiente. No PowerShell do Windows:
+   ```powershell
+   $env:DB_HOST = "localhost"
+   $env:DB_PORT = "3306"
+   $env:DB_USER = "root"
+   $env:DB_PASSWORD = "sua_senha_do_mysql"
+   $env:DB_NAME = "vistoria_informatizada"
+   ```
+   `DB_HOST`, `DB_PORT`, `DB_USER` e `DB_NAME` têm valores padrão para uma instalação local. Informe a senha configurada no seu MySQL em `DB_PASSWORD`.
+4. No mesmo terminal, iniciar o servidor:
    ```bash
    npm start
    ```
