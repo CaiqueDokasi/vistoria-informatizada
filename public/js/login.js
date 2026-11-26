@@ -1,9 +1,9 @@
 /**
- * Lógica da tela de Login
+ * Lï¿½gica da tela de Login
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Se já estiver logado, redireciona diretamente
+  // Se jï¿½ estiver logado, redireciona diretamente
   const usuarioLogado = AUTH.getUsuario();
   if (usuarioLogado) {
     window.location.href = 'vistorias.html';
@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnAnalista = document.getElementById('preencher-analista');
   const btnOperador = document.getElementById('preencher-operador');
 
-  // Preenchimento rápido para testes
+  // Preenchimento rï¿½pido para testes
   if (btnAnalista) {
     btnAnalista.addEventListener('click', () => {
       emailInput.value = 'analista@vistoria.com';
@@ -80,14 +80,14 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      // Salva a sessão no localStorage
+      // Salva a sessï¿½o no localStorage
       AUTH.salvarUsuario(dados);
 
-      // Redireciona para vistorias.html (ou usuarios.html se for Analista e vistorias ainda não existir)
+      // Redireciona para vistorias.html (ou usuarios.html se for Analista e vistorias ainda nï¿½o existir)
       window.location.href = 'vistorias.html';
     } catch (err) {
-      console.error('Erro na requisição de login:', err);
-      mostrarAlerta('Não foi possível conectar ao servidor. Tente novamente.');
+      console.error('Erro na requisiï¿½ï¿½o de login:', err);
+      mostrarAlerta('Nï¿½o foi possï¿½vel conectar ao servidor. Tente novamente.');
       btnEntrar.disabled = false;
       btnEntrar.textContent = 'Entrar';
     }

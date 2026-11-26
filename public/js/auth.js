@@ -1,5 +1,5 @@
 /**
- * Vistoria Informatizada - Módulo de Autenticação e Sessão (CSS/JS Puro)
+ * Vistoria Informatizada - MÃ³dulo de AutenticaÃ§Ã£o e SessÃ£o (CSS/JS Puro)
  * Compartilhado por todas as telas do sistema.
  */
 
@@ -7,55 +7,55 @@ const AUTH = {
   STORAGE_KEY: 'usuarioLogado',
 
   /**
-   * Retorna os dados do usuário autenticado ou null
+   * Retorna os dados do usuÃ¡rio autenticado ou null
    */
   getUsuario() {
     try {
       const data = localStorage.getItem(this.STORAGE_KEY);
       return data ? JSON.parse(data) : null;
     } catch (e) {
-      console.error('Erro ao ler usuário do localStorage', e);
+      console.error('Erro ao ler usuÃ¡rio do localStorage', e);
       return null;
     }
   },
 
   /**
-   * Salva os dados do usuário após o login
+   * Salva os dados do usuÃ¡rio apÃ³s o login
    */
   salvarUsuario(usuario) {
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(usuario));
   },
 
   /**
-   * Remove o usuário da sessão
+   * Remove o usuÃ¡rio da sessÃ£o
    */
   removerUsuario() {
     localStorage.removeItem(this.STORAGE_KEY);
   },
 
   /**
-   * Finaliza a sessão e redireciona para a tela de login
+   * Finaliza a sessÃ£o e redireciona para a tela de login
    */
   logout() {
     this.removerUsuario();
-    window.location.href = 'login.html';
+    window.location.href = '/login.html';
   },
 
   /**
-   * Guarda de rota: exige que haja um usuário logado.
-   * Se não houver, redireciona para a tela de login.
+   * Guarda de rota: exige que haja um usuÃ¡rio logado.
+   * Se nÃ£o houver, redireciona para a tela de login.
    */
   exigirAutenticacao() {
     const usuario = this.getUsuario();
     if (!usuario) {
-      window.location.href = 'login.html';
+      window.location.href = '/login.html';
       return null;
     }
     return usuario;
   },
 
   /**
-   * Guarda de cargo: exige que o usuário tenha um dos cargos permitidos.
+   * Guarda de cargo: exige que o usuÃ¡rio tenha um dos cargos permitidos.
    * Exemplo: AUTH.exigirCargo(['Analista'])
    */
   exigirCargo(cargosPermitidos = []) {
@@ -67,8 +67,8 @@ const AUTH = {
     const permitido = lista.some(c => c.toLowerCase() === cargoUsuario);
 
     if (!permitido) {
-      alert(`Acesso negado: seu cargo (${usuario.cargo}) não tem permissão para acessar esta página.`);
-      window.location.href = 'vistorias.html';
+      alert(`Acesso negado: seu cargo (${usuario.cargo}) nÃ£o tem permissÃ£o para acessar esta pÃ¡gina.`);
+      window.location.href = '/vistorias.html';
       return null;
     }
 
@@ -76,7 +76,7 @@ const AUTH = {
   },
 
   /**
-   * Renderiza dinamicamente a barra de navegação no elemento #navbar-container
+   * Renderiza dinamicamente a barra de navegaÃ§Ã£o no elemento #navbar-container
    * @param {string} paginaAtiva 'vistorias' | 'ocorrencias' | 'usuarios'
    */
   renderNavbar(paginaAtiva = '') {
@@ -92,21 +92,21 @@ const AUTH = {
     container.innerHTML = `
       <nav class="navbar">
         <div class="container navbar-inner">
-          <a href="vistorias.html" class="navbar-brand">
+          <a href="/vistorias.html" class="navbar-brand">
             <span class="navbar-brand-icon">V</span>
             <span>Vistoria Informatizada</span>
           </a>
 
           <ul class="navbar-menu">
             <li>
-              <a href="vistorias.html" class="${paginaAtiva === 'vistorias' ? 'active' : ''}">Vistorias</a>
+              <a href="/vistorias.html" class="${paginaAtiva === 'vistorias' ? 'active' : ''}">Vistorias</a>
             </li>
             <li>
-              <a href="/ocorrencias.html" class="${paginaAtiva === 'ocorrencias' ? 'active' : ''}">Ocorrências</a>
+              <a href="/ocorrencias.html" class="${paginaAtiva === 'ocorrencias' ? 'active' : ''}">OcorrÃªncias</a>
             </li>
             ${isAnalista ? `
               <li>
-                <a href="/usuarios.html" class="${paginaAtiva === 'usuarios' ? 'active' : ''}">Usuários</a>
+                <a href="/usuarios.html" class="${paginaAtiva === 'usuarios' ? 'active' : ''}">UsuÃ¡rios</a>
               </li>
             ` : ''}
           </ul>
@@ -114,9 +114,9 @@ const AUTH = {
           <div class="navbar-user">
             <div class="user-badge">
               <span class="user-badge-name">${usuario.nome || usuario.email}</span>
-              <span class="badge ${roleBadgeClass}">${usuario.cargo || 'Usuário'}</span>
+              <span class="badge ${roleBadgeClass}">${usuario.cargo || 'UsuÃ¡rio'}</span>
             </div>
-            <button type="button" class="btn btn-sm btn-outline" id="btn-logout-nav" title="Encerrar sessão">
+            <button type="button" class="btn btn-sm btn-outline" id="btn-logout-nav" title="Encerrar sessÃ£o">
               Sair
             </button>
           </div>
@@ -124,7 +124,7 @@ const AUTH = {
       </nav>
     `;
 
-    // Event listener do botão Sair
+    // Event listener do botÃ£o Sair
     const btnLogout = document.getElementById('btn-logout-nav');
     if (btnLogout) {
       btnLogout.addEventListener('click', () => this.logout());
