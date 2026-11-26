@@ -92,8 +92,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   // --- Carregar cargos ---
   async function carregarCargos() {
     const res = await fetch('/api/cargos');
-    if (!res.ok) return;
-    listaCargos = await res.json();
+    const dados = await res.json();
+    if (!res.ok) throw new Error(dados.erro || 'Erro ao carregar cargos.');
+    listaCargos = dados;
     selectCargo.innerHTML = listaCargos.map(
       (c) => `<option value="${c.id}">${c.nome}</option>`
     ).join('');
@@ -105,17 +106,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     tabelaCorpo.innerHTML = '';
     estadoVazio.classList.add('oculto');
 
-    const res = await fetch('/api/usuarios');
-    const dados = await res.json();
-    estadoCarregando.classList.add('oculto');
+    try {
+      const res = await fetch('/api/usuarios');
+      const dados = await res.json();
+      if (!res.ok) throw new Error(dados.erro || 'Erro ao carregar usuários.');
 
-    if (!res.ok) {
-      mostrarFeedback(dados.erro || 'Erro ao carregar usuários.', 'erro');
-      return;
+      listaUsuarios = dados;
+      renderizarTabela(listaUsuarios);
+    } catch (erro) {
+      mostrarFeedback(`Não foi possível carregar os usuários. ${erro.message}`, 'erro');
+    } finally {
+      estadoCarregando.classList.add('oculto');
     }
-
-    listaUsuarios = dados;
-    renderizarTabela(listaUsuarios);
   }
 
   function escapar(str) {
@@ -259,5 +261,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   // Inicialização
-  await Promise.all([carregarCargos(), carregarUsuarios()]);
+  try {
+    await Promise.all([carregarCargos(), carregarUsuarios()]);
+  } catch (erro) {
+    mostrarFeedback(`Não foi possível carregar os cargos. ${erro.message}`, 'erro');
+  }
 });
