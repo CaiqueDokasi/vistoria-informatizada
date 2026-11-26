@@ -23,12 +23,12 @@ const USUARIOS_PADRAO = {
 
 // Obtém o usuário logado do localStorage ou usa o Operador de teste por padrão
 function obterUsuarioAtual() {
-  const salvo = localStorage.getItem('usuario');
+  const salvo = localStorage.getItem('usuarioLogado');
   if (salvo) {
     try {
       return JSON.parse(salvo);
     } catch (erro) {
-      localStorage.removeItem('usuario');
+      localStorage.removeItem('usuarioLogado');
     }
   }
   return USUARIOS_PADRAO.operador;
@@ -54,7 +54,7 @@ function iniciarBarraUsuario(aoTrocarPerfil) {
     seletor.value = usuario.cargo === 'Analista' ? 'analista' : 'operador';
     seletor.addEventListener('change', () => {
       const escolhido = USUARIOS_PADRAO[seletor.value];
-      localStorage.setItem('usuario', JSON.stringify(escolhido));
+      localStorage.setItem('usuarioLogado', JSON.stringify(escolhido));
       if (nomeEl) {
         nomeEl.textContent = `${escolhido.nome} (${escolhido.cargo})`;
       }
