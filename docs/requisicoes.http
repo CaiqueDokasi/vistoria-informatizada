@@ -110,6 +110,15 @@ Content-Type: application/json
   "urlFoto": "https://exemplo.com/rachadura.jpg"
 }
 
+### Adicionar mais uma foto à ocorrência
+POST {{url}}/ocorrencias/1/fotos
+Content-Type: application/json
+
+{ "urlFoto": "https://exemplo.com/rachadura-detalhe-zoom.jpg" }
+
+### Remover foto da ocorrência
+DELETE {{url}}/ocorrencias/1/fotos/1
+
 ### Alterar ocorrência
 PUT {{url}}/ocorrencias/1
 Content-Type: application/json

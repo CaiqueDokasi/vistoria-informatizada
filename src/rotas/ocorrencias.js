@@ -9,7 +9,9 @@ router.get('/ocorrencias', async (req, res) => {
   const { idVistoria } = req.query;
 
   let sql = `
-    SELECT ocorrencia.*, vistoria.endereco, usuario.nome AS operador
+    SELECT ocorrencia.*, vistoria.endereco, usuario.nome AS operador,
+           (SELECT COUNT(*) FROM foto_ocorrencia WHERE foto_ocorrencia.id_ocorrencia = ocorrencia.id) AS total_fotos,
+           (SELECT url_foto FROM foto_ocorrencia WHERE foto_ocorrencia.id_ocorrencia = ocorrencia.id LIMIT 1) AS primeira_foto
       FROM ocorrencia
       JOIN vistoria ON vistoria.id = ocorrencia.id_vistoria
       JOIN usuario ON usuario.id = ocorrencia.id_usuario_criador`;
@@ -69,6 +71,37 @@ router.post('/ocorrencias', async (req, res) => {
   }
 
   res.status(201).json({ id: resultado.insertId });
+});
+
+// POST /api/ocorrencias/:id/fotos - adiciona mais uma foto à ocorrência
+// Corpo: { urlFoto }
+router.post('/ocorrencias/:id/fotos', async (req, res) => {
+  const { urlFoto } = req.body || {};
+
+  if (!urlFoto) {
+    return res.status(400).json({ erro: 'Informe o link ou dados da foto' });
+  }
+
+  const [ocorrencias] = await db.query('SELECT id FROM ocorrencia WHERE id = ?', [req.params.id]);
+  if (ocorrencias.length === 0) {
+    return res.status(404).json({ erro: 'Ocorrência não encontrada' });
+  }
+
+  const [resultado] = await db.query(
+    'INSERT INTO foto_ocorrencia (id_ocorrencia, url_foto) VALUES (?, ?)',
+    [req.params.id, urlFoto]
+  );
+
+  res.status(201).json({ id: resultado.insertId, url_foto: urlFoto, mensagem: 'Foto adicionada à ocorrência' });
+});
+
+// DELETE /api/ocorrencias/:id/fotos/:idFoto - remove uma foto da ocorrência
+router.delete('/ocorrencias/:id/fotos/:idFoto', async (req, res) => {
+  await db.query(
+    'DELETE FROM foto_ocorrencia WHERE id = ? AND id_ocorrencia = ?',
+    [req.params.idFoto, req.params.id]
+  );
+  res.json({ mensagem: 'Foto removida com sucesso' });
 });
 
 // PUT /api/ocorrencias/:id - altera uma ocorrência
