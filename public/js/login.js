@@ -3,13 +3,6 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Se j� estiver logado, redireciona diretamente
-  const usuarioLogado = AUTH.getUsuario();
-  if (usuarioLogado) {
-    window.location.href = 'vistorias.html';
-    return;
-  }
-
   const form = document.getElementById('form-login');
   const emailInput = document.getElementById('email');
   const senhaInput = document.getElementById('senha');

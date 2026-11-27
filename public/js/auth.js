@@ -6,16 +6,24 @@
 const AUTH = {
   STORAGE_KEY: 'usuarioLogado',
 
+  // Usuário padrão com permissões de Analista para visualização livre do design
+  DEFAULT_USER: {
+    id: 1,
+    nome: 'Usuário Convidado (Preview)',
+    email: 'analista@vistoria.com',
+    cargo: 'Analista'
+  },
+
   /**
-   * Retorna os dados do usuário autenticado ou null
+   * Retorna os dados do usuário autenticado ou usuário de teste/preview
    */
   getUsuario() {
     try {
       const data = localStorage.getItem(this.STORAGE_KEY);
-      return data ? JSON.parse(data) : null;
+      return data ? JSON.parse(data) : this.DEFAULT_USER;
     } catch (e) {
       console.error('Erro ao ler usuário do localStorage', e);
-      return null;
+      return this.DEFAULT_USER;
     }
   },
 
@@ -42,37 +50,17 @@ const AUTH = {
   },
 
   /**
-   * Guarda de rota: exige que haja um usuário logado.
-   * Se não houver, redireciona para a tela de login.
+   * Guarda de rota: desativado para permitir navegação livre
    */
   exigirAutenticacao() {
-    const usuario = this.getUsuario();
-    if (!usuario) {
-      window.location.href = '/login.html';
-      return null;
-    }
-    return usuario;
+    return this.getUsuario();
   },
 
   /**
-   * Guarda de cargo: exige que o usuário tenha um dos cargos permitidos.
-   * Exemplo: AUTH.exigirCargo(['Analista'])
+   * Guarda de cargo: desativado para permitir navegação livre
    */
   exigirCargo(cargosPermitidos = []) {
-    const usuario = this.exigirAutenticacao();
-    if (!usuario) return null;
-
-    const lista = Array.isArray(cargosPermitidos) ? cargosPermitidos : [cargosPermitidos];
-    const cargoUsuario = (usuario.cargo || '').toLowerCase();
-    const permitido = lista.some(c => c.toLowerCase() === cargoUsuario);
-
-    if (!permitido) {
-      alert(`Acesso negado: seu cargo (${usuario.cargo}) não tem permissão para acessar esta página.`);
-      window.location.href = '/vistorias.html';
-      return null;
-    }
-
-    return usuario;
+    return this.getUsuario();
   },
 
   /**
