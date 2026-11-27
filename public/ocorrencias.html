@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ocorrências - Vistoria Informatizada</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .badge-critica { background: #fee2e2; color: #991b1b; }
+    .badge-alta { background: #ffedd5; color: #9a3412; }
+    .badge-media { background: #fef9c3; color: #854d0e; }
+    .badge-baixa { background: #e0f2fe; color: #075985; }
+  </style>
+</head>
+<body>
+  <div id="navbar-container"></div>
+
+  <main class="main-content">
+    <div class="container">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Histórico de Ocorrências</h1>
+          <p class="page-subtitle">Acompanhe as irregularidades, apontamentos e fotos registrados nas vistorias.</p>
+        </div>
+        <div>
+          <button type="button" class="btn btn-primary" onclick="alert('Funcionalidade de exemplo no modo visualização')">
+            + Nova Ocorrência
+          </button>
+        </div>
+      </div>
+
+      <!-- Filtros -->
+      <div class="card mb-4" style="margin-bottom: 1.5rem;">
+        <div class="card-body" style="padding: 1rem 1.25rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+          <input
+            type="text"
+            class="form-input"
+            style="flex: 2; min-width: 240px;"
+            placeholder="🔍 Filtrar por descrição, vistoria ou operador..."
+          >
+          <select class="form-select" style="flex: 1; min-width: 160px;">
+            <option value="">Todas as gravidades</option>
+            <option value="critica">Crítica</option>
+            <option value="alta">Alta</option>
+            <option value="media">Média</option>
+            <option value="baixa">Baixa</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Tabela de Ocorrências -->
+      <div class="card">
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th style="width: 80px;">Código</th>
+                <th>Data</th>
+                <th>Vistoria / Endereço</th>
+                <th>Classificação</th>
+                <th>Descrição do Apontamento</th>
+                <th>Operador</th>
+                <th style="text-align: right;">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="font-weight: 600; color: var(--primary);">#OC-101</td>
+                <td style="color: var(--text-muted);">22/11/2026</td>
+                <td><strong>Av. Paulista, 1000</strong><br><small class="text-muted">Bela Vista (VIS-2026-001)</small></td>
+                <td><span class="badge badge-critica">Crítica</span></td>
+                <td>Fissura estrutural de 3mm com infiltração ativa na viga V-12 da laje de cobertura.</td>
+                <td>Carlos Santos</td>
+                <td style="text-align: right;">
+                  <button class="btn btn-sm btn-outline">Detalhes</button>
+                </td>
+              </tr>
+              <tr>
+                <td style="font-weight: 600; color: var(--primary);">#OC-102</td>
+                <td style="color: var(--text-muted);">24/11/2026</td>
+                <td><strong>Rua das Flores, 450</strong><br><small class="text-muted">Jardins (VIS-2026-002)</small></td>
+                <td><span class="badge badge-alta">Alta</span></td>
+                <td>Extintores de incêndio com carga vencida no bloco B (pavimento térreo e subsolo).</td>
+                <td>Mariana Silva</td>
+                <td style="text-align: right;">
+                  <button class="btn btn-sm btn-outline">Detalhes</button>
+                </td>
+              </tr>
+              <tr>
+                <td style="font-weight: 600; color: var(--primary);">#OC-103</td>
+                <td style="color: var(--text-muted);">24/11/2026</td>
+                <td><strong>Rua das Flores, 450</strong><br><small class="text-muted">Jardins (VIS-2026-002)</small></td>
+                <td><span class="badge badge-media">Média</span></td>
+                <td>Desgaste do revestimento cerâmico e manchas de umidade no hall de entrada.</td>
+                <td>Mariana Silva</td>
+                <td style="text-align: right;">
+                  <button class="btn btn-sm btn-outline">Detalhes</button>
+                </td>
+              </tr>
+              <tr>
+                <td style="font-weight: 600; color: var(--primary);">#OC-104</td>
+                <td style="color: var(--text-muted);">18/11/2026</td>
+                <td><strong>Rod. Anhanguera, Km 28</strong><br><small class="text-muted">Distrito Industrial (VIS-2026-003)</small></td>
+                <td><span class="badge badge-baixa">Baixa</span></td>
+                <td>Pintura de demarcação de vagas e rotas de fuga desgastada no piso industrial.</td>
+                <td>Roberto Almeida</td>
+                <td style="text-align: right;">
+                  <button class="btn btn-sm btn-outline">Detalhes</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="/js/auth.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      AUTH.renderNavbar('ocorrencias');
+    });
+  </script>
+</body>
+</html>

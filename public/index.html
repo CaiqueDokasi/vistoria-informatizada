@@ -7,28 +7,24 @@
   <link rel="stylesheet" href="/css/style.css">
   <script src="/js/auth.js"></script>
   <script>
-    // Redirecionamento automático baseado na sessão do usuário
+    // Redirecionamento direto para o painel principal (sem exigir autenticação)
     document.addEventListener('DOMContentLoaded', () => {
-      const usuario = AUTH.getUsuario();
-      if (usuario) {
-        // Se for analista e vistorias ainda estiver sendo feito, vai para vistorias ou usuarios
-        window.location.replace('/vistorias.html');
-      } else {
-        window.location.replace('/login.html');
-      }
+      window.location.replace('/vistorias.html');
     });
   </script>
 </head>
 <body>
   <div class="auth-container">
-    <div class="card" style="max-width: 480px; width: 100%; text-align: center; padding: 2rem;">
+    <div class="card" style="max-width: 520px; width: 100%; text-align: center; padding: 2rem;">
       <div class="auth-icon" style="margin: 0 auto 1rem;">V</div>
       <h1 class="page-title" style="font-size: 1.4rem;">Vistoria Informatizada</h1>
-      <p class="text-muted mt-2">Redirecionando para o sistema...</p>
+      <p class="text-muted mt-2">Escolha uma tela para visualizar o design:</p>
       
       <div class="mt-4" style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
-        <a href="/login.html" class="btn btn-primary">Ir para o Login</a>
-        <a href="/usuarios.html" class="btn btn-secondary">Gestão de Usuários</a>
+        <a href="/vistorias.html" class="btn btn-primary">🏢 Vistorias</a>
+        <a href="/ocorrencias.html" class="btn btn-secondary">⚠️ Ocorrências</a>
+        <a href="/usuarios.html" class="btn btn-secondary">👥 Usuários</a>
+        <a href="/login.html" class="btn btn-outline">🔑 Login</a>
       </div>
     </div>
   </div>

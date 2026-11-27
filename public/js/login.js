@@ -3,93 +3,92 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Se já estiver logado, redireciona diretamente
-  const usuarioLogado = AUTH.getUsuario();
-  if (usuarioLogado) {
-    window.location.href = '/vistorias.html';
-    return;
-  }
-
   const form = document.getElementById('form-login');
   const emailInput = document.getElementById('email');
   const senhaInput = document.getElementById('senha');
   const btnEntrar = document.getElementById('btn-entrar');
   const alerta = document.getElementById('mensagem-alerta');
-
   const btnAnalista = document.getElementById('preencher-analista');
   const btnOperador = document.getElementById('preencher-operador');
 
-  // Preenchimento rápido para testes
-  if (btnAnalista) {
-    btnAnalista.addEventListener('click', () => {
-      emailInput.value = 'analista@vistoria.com';
-      senhaInput.value = '123456';
-      esconderAlerta();
-    });
-  }
-
-  if (btnOperador) {
-    btnOperador.addEventListener('click', () => {
-      emailInput.value = 'operador@vistoria.com';
-      senhaInput.value = '123456';
-      esconderAlerta();
-    });
-  }
-
   function mostrarAlerta(mensagem, tipo = 'danger') {
+    if (!alerta) return;
     alerta.className = `alert alert-${tipo}`;
     alerta.textContent = mensagem;
     alerta.classList.remove('d-none');
   }
 
   function esconderAlerta() {
+    if (!alerta) return;
     alerta.classList.add('d-none');
     alerta.textContent = '';
   }
 
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    esconderAlerta();
+  // Preenchimento rápido para testes
+  if (btnAnalista) {
+    btnAnalista.addEventListener('click', () => {
+      if (emailInput) emailInput.value = 'analista@vistoria.com';
+      if (senhaInput) senhaInput.value = '123456';
+      esconderAlerta();
+    });
+  }
 
-    const email = emailInput.value.trim();
+  if (btnOperador) {
+    btnOperador.addEventListener('click', () => {
+      if (emailInput) emailInput.value = 'operador@vistoria.com';
+      if (senhaInput) senhaInput.value = '123456';
+      esconderAlerta();
+    });
+  }
+
+  // Redireciona para usuarios.html se enviar o formulário
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      esconderAlerta();
+
+    const email = emailInput.value.trim() || 'analista@vistoria.com';
     const senha = senhaInput.value;
-
-    if (!email || !senha) {
-      mostrarAlerta('Por favor, informe o e-mail e a senha.');
-      return;
-    }
 
     try {
       btnEntrar.disabled = true;
       btnEntrar.textContent = 'Entrando...';
 
-      const resposta = await fetch('/api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email, senha })
-      });
+      let usuario = null;
+      try {
+        const resposta = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, senha })
+        });
+        if (resposta.ok) {
+          usuario = await resposta.json();
+        }
+      } catch (e) {
+        console.warn('API de login indisponível, utilizando modo de visualização local:', e);
+      }
 
-      const dados = await resposta.json();
-
-      if (!resposta.ok) {
-        mostrarAlerta(dados.erro || 'Falha ao autenticar. Verifique seus dados.');
-        btnEntrar.disabled = false;
-        btnEntrar.textContent = 'Entrar';
-        return;
+      // Se a API não respondeu ou deu erro, cria usuário local para visualização
+      if (!usuario) {
+        const isOperador = email.toLowerCase().includes('operador');
+        usuario = {
+          id: 1,
+          nome: isOperador ? 'Operador (Visualização)' : 'Analista (Visualização)',
+          email: email,
+          cargo: isOperador ? 'Operador' : 'Analista'
+        };
       }
 
       // Salva a sessão no localStorage
-      AUTH.salvarUsuario(dados);
+      AUTH.salvarUsuario(usuario);
 
-      // Redireciona para vistorias.html (ou usuarios.html se for Analista e vistorias ainda não existir)
+      // Redireciona para a tela inicial
       window.location.href = '/vistorias.html';
     } catch (err) {
       console.error('Erro na requisição de login:', err);
-      mostrarAlerta('Não foi possível conectar ao servidor. Tente novamente.');
-      btnEntrar.disabled = false;
-      btnEntrar.textContent = 'Entrar';
+      // Mesmo com erro, permite entrar para ver o design
+      window.location.href = '/vistorias.html';
     }
   });
+  }
 });
