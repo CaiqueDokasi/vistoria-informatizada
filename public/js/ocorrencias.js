@@ -476,13 +476,23 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (!res.ok) {
           const errData = await res.json().catch(() => ({}));
-          throw new Error(errData.erro || 'Erro ao registrar ocorrência');
+          const erro = new Error(errData.erro || 'Erro ao registrar ocorrência');
+          erro.status = res.status;
+          throw erro;
         }
 
         fecharModalCadastro();
         mostrarFeedback('Ocorrência registrada com sucesso com fotos!');
         await carregarOcorrencias();
       } catch (err) {
+        if (err.status) {
+          if (modalErro) {
+            modalErro.textContent = err.message;
+            modalErro.classList.remove('d-none');
+          }
+          return;
+        }
+
         console.warn('API indisponível, simulando cadastro em memória:', err);
         const vistoriaSel = listaVistorias.find(v => v.id == idVistoria);
         const novoId = listaOcorrencias.length > 0 ? Math.max(...listaOcorrencias.map(o => o.id)) + 1 : 101;
@@ -659,7 +669,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (!res.ok) {
           const errData = await res.json().catch(() => ({}));
-          throw new Error(errData.erro || 'Falha ao adicionar foto');
+          const erro = new Error(errData.erro || 'Falha ao adicionar foto');
+          erro.status = res.status;
+          throw erro;
         }
 
         const data = await res.json();
@@ -674,6 +686,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         mostrarFeedback('Nova foto anexada à ocorrência com sucesso!');
       } catch (err) {
+        if (err.status) {
+          mostrarFeedback(err.message);
+          return;
+        }
+
         console.warn('API indisponível, salvando foto na memória da ocorrência:', err);
         const novaFotoObj = {
           id: Date.now(),

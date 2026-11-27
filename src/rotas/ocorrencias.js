@@ -10,6 +10,22 @@ const limitarMutacoesDeFoto = rateLimit({
   legacyHeaders: false
 });
 
+function normalizarUrlFoto(valor) {
+  if (valor == null || valor === '') return '';
+  if (typeof valor !== 'string') return null;
+
+  const urlFoto = valor.trim();
+  if (!urlFoto) return '';
+  if (urlFoto.length > 255) return null;
+
+  try {
+    const urlAnalisada = new URL(urlFoto);
+    return ['http:', 'https:'].includes(urlAnalisada.protocol) ? urlFoto : null;
+  } catch (erro) {
+    return null;
+  }
+}
+
 // GET /api/ocorrencias - histórico de ocorrências
 // Filtro opcional: /api/ocorrencias?idVistoria=1
 router.get('/ocorrencias', async (req, res) => {
@@ -58,9 +74,14 @@ router.get('/ocorrencias/:id', async (req, res) => {
 // classificacao: BAIXA, MEDIA, ALTA ou CRITICA
 router.post('/ocorrencias', async (req, res) => {
   const { idVistoria, idUsuarioCriador, classificacao, descricao, urlFoto } = req.body || {};
+  const urlFotoNormalizada = normalizarUrlFoto(urlFoto);
 
   if (!idVistoria || !idUsuarioCriador || !classificacao || !descricao) {
     return res.status(400).json({ erro: 'Preencha vistoria, classificação e descrição' });
+  }
+
+  if (urlFotoNormalizada === null) {
+    return res.status(400).json({ erro: 'Informe um link HTTP ou HTTPS válido de até 255 caracteres para a foto' });
   }
 
   const [resultado] = await db.query(
@@ -70,10 +91,10 @@ router.post('/ocorrencias', async (req, res) => {
   );
 
   // A foto é opcional
-  if (urlFoto) {
+  if (urlFotoNormalizada) {
     await db.query(
       'INSERT INTO foto_ocorrencia (id_ocorrencia, url_foto) VALUES (?, ?)',
-      [resultado.insertId, urlFoto]
+      [resultado.insertId, urlFotoNormalizada]
     );
   }
 
@@ -84,19 +105,9 @@ router.post('/ocorrencias', async (req, res) => {
 // Corpo: { urlFoto }
 router.post('/ocorrencias/:id/fotos', limitarMutacoesDeFoto, async (req, res) => {
   const { urlFoto } = req.body || {};
-  const urlFotoNormalizada = typeof urlFoto === 'string' ? urlFoto.trim() : '';
-  let urlFotoAnalisada;
+  const urlFotoNormalizada = normalizarUrlFoto(urlFoto);
 
-  try {
-    urlFotoAnalisada = new URL(urlFotoNormalizada);
-  } catch (erro) {
-    return res.status(400).json({ erro: 'Informe um link HTTP ou HTTPS válido para a foto' });
-  }
-
-  if (
-    urlFotoNormalizada.length > 255 ||
-    !['http:', 'https:'].includes(urlFotoAnalisada.protocol)
-  ) {
+  if (!urlFotoNormalizada) {
     return res.status(400).json({ erro: 'Informe um link HTTP ou HTTPS válido de até 255 caracteres' });
   }
 
