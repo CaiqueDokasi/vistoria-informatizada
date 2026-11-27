@@ -510,7 +510,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         listaOcorrencias.unshift(novaOc);
         fecharModalCadastro();
-        mostrarFeedback('Ocorrência registrada com sucesso!');
+        mostrarFeedback('API indisponível: ocorrência exibida apenas nesta sessão, sem ser salva no servidor.');
         renderizarTabela(listaOcorrencias);
       } finally {
         btnSalvarOcorrencia.disabled = false;
@@ -700,7 +700,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (!ocorrenciaAtiva.fotos) ocorrenciaAtiva.fotos = [];
         ocorrenciaAtiva.fotos.push(novaFotoObj);
-        mostrarFeedback('Foto adicionada à ocorrência com sucesso!');
+        mostrarFeedback('API indisponível: foto exibida apenas nesta sessão, sem ser salva no servidor.');
       } finally {
         btnSalvarNovaFoto.disabled = false;
         btnSalvarNovaFoto.textContent = 'Salvar Foto na Ocorrência';
