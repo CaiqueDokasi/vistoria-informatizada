@@ -88,6 +88,6 @@ Pré-requisitos: [Node.js](https://nodejs.org) e [MySQL](https://dev.mysql.com/d
 - [x] Conceito e documentação
 - [x] Modelagem do banco de dados
 - [x] Backend: login, usuários, vistorias e ocorrências
-- [ ] Protótipo de telas (Figma)
-- [ ] Frontend
-- [ ] Extra: importação e backup dos dados
+- [x] Protótipo de telas (Figma)
+- [x] Frontend
+- [x] Extra: importação e backup dos dados
