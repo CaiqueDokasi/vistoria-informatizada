@@ -4,29 +4,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Vistoria Informatizada</title>
-  <link rel="stylesheet" href="/css/style.css">
-  <script src="/js/auth.js"></script>
+  <link rel="stylesheet" href="css/estilo.css">
+  <script src="js/auth.js"></script>
   <script>
-    // Redirecionamento direto para o painel principal (sem exigir autenticação)
     document.addEventListener('DOMContentLoaded', () => {
-      window.location.replace('/vistorias.html');
+      const usuario = AUTH.getUsuario();
+      if (usuario) {
+        window.location.replace('vistorias.html');
+      } else {
+        window.location.replace('login.html');
+      }
     });
   </script>
 </head>
 <body>
-  <div class="auth-container">
-    <div class="card" style="max-width: 520px; width: 100%; text-align: center; padding: 2rem;">
-      <div class="auth-icon" style="margin: 0 auto 1rem;">V</div>
-      <h1 class="page-title" style="font-size: 1.4rem;">Vistoria Informatizada</h1>
-      <p class="text-muted mt-2">Escolha uma tela para visualizar o design:</p>
-      
-      <div class="mt-4" style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
-        <a href="/vistorias.html" class="btn btn-primary">🏢 Vistorias</a>
-        <a href="/ocorrencias.html" class="btn btn-secondary">⚠️ Ocorrências</a>
-        <a href="/usuarios.html" class="btn btn-secondary">👥 Usuários</a>
-        <a href="/login.html" class="btn btn-outline">🔑 Login</a>
-      </div>
-    </div>
-  </div>
+  <main class="container texto-centralizado estado-carregamento">
+    <p>Redirecionando...</p>
+  </main>
 </body>
 </html>

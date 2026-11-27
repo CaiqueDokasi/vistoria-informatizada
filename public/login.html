@@ -4,71 +4,38 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - Vistoria Informatizada</title>
-  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="css/estilo.css">
 </head>
-<body>
-  <div class="auth-container">
-    <div class="auth-card">
-      <div class="auth-header">
-        <div class="auth-icon">V</div>
-        <h1 class="auth-title">Vistoria Informatizada</h1>
-        <p class="auth-subtitle">Entre com suas credenciais para acessar o sistema</p>
+<body class="login-pagina">
+  <div class="login-card">
+    <div class="login-marca">V</div>
+    <h1 class="login-titulo">Vistoria Informatizada</h1>
+    <p class="login-subtitulo">Entre com suas credenciais para acessar o sistema</p>
+
+    <div id="mensagem-alerta" class="alerta alerta-erro oculto"></div>
+
+    <form id="form-login" novalidate>
+      <div class="form-grupo">
+        <label for="email">E-mail</label>
+        <input type="email" id="email" class="form-controle" placeholder="exemplo@vistoria.com" required autocomplete="email">
       </div>
+      <div class="form-grupo">
+        <label for="senha">Senha</label>
+        <input type="password" id="senha" class="form-controle" placeholder="Digite sua senha" required autocomplete="current-password">
+      </div>
+      <button type="submit" id="btn-entrar" class="btn btn-primario login-entrar">Entrar</button>
+    </form>
 
-      <div id="mensagem-alerta" class="alert alert-danger d-none" role="alert"></div>
-
-      <form id="form-login" novalidate>
-        <div class="form-group">
-          <label for="email" class="form-label">E-mail <span class="required">*</span></label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            class="form-input"
-            placeholder="exemplo@vistoria.com"
-            required
-            autocomplete="email"
-          >
-        </div>
-
-        <div class="form-group">
-          <label for="senha" class="form-label">Senha <span class="required">*</span></label>
-          <input
-            type="password"
-            id="senha"
-            name="senha"
-            class="form-input"
-            placeholder="Digite sua senha"
-            required
-            autocomplete="current-password"
-          >
-        </div>
-
-        <button type="submit" id="btn-entrar" class="btn btn-primary btn-block mt-4">
-          Entrar
-        </button>
-
-        <a href="/vistorias.html" class="btn btn-secondary btn-block mt-3" style="text-decoration: none; text-align: center; display: block;">
-          ⚡ Entrar sem Autenticação (Ver Design)
-        </a>
-      </form>
-
-      <!-- Atalhos para facilitar testes de desenvolvimento e avaliação -->
-      <div class="quick-creds">
-        <div class="quick-creds-title">Usuários de Teste (Clique para preencher)</div>
-        <div class="quick-creds-buttons">
-          <button type="button" class="btn btn-sm btn-outline" id="preencher-analista">
-            🔑 Analista
-          </button>
-          <button type="button" class="btn btn-sm btn-outline" id="preencher-operador">
-            👷 Operador
-          </button>
-        </div>
+    <div class="atalhos">
+      <div class="atalhos-titulo">Usuários de Teste (clique para preencher)</div>
+      <div class="atalhos-btns">
+        <button type="button" class="btn btn-pequeno" id="preencher-analista">🔑 Analista</button>
+        <button type="button" class="btn btn-pequeno" id="preencher-operador">👷 Operador</button>
       </div>
     </div>
   </div>
 
-  <script src="/js/auth.js"></script>
-  <script src="/js/login.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/login.js"></script>
 </body>
 </html>

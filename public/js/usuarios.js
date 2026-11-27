@@ -1,267 +1,208 @@
 /**
- * Lógica da tela de Gestão de Usuários (Exclusivo Analista)
+ * Lógica da tela de Gestão de Usuários (usuarios.html) — sem Bootstrap
  */
 
 document.addEventListener('DOMContentLoaded', async () => {
-  // 1. Valida se o usuário tem perfil de Analista
+  // 1. Valida cargo Analista
   const usuarioLogado = AUTH.exigirCargo(['Analista']);
   if (!usuarioLogado) return;
 
-  // 2. Renderiza a barra de navegação superior
-  AUTH.renderNavbar('usuarios');
+  // 2. Exibe nome no header e botão Sair
+  const nomeEl = document.getElementById('nomeUsuarioHeader');
+  if (nomeEl) nomeEl.textContent = `${usuarioLogado.nome} (${usuarioLogado.cargo})`;
+  document.getElementById('btnSair').addEventListener('click', () => AUTH.logout());
 
-  // Elementos do DOM
+  // Elementos DOM
   const tabelaCorpo = document.getElementById('tabela-usuarios-corpo');
   const estadoCarregando = document.getElementById('estado-carregando');
   const estadoVazio = document.getElementById('estado-vazio');
   const alertaFeedback = document.getElementById('alerta-feedback');
   const inputBusca = document.getElementById('input-busca');
 
-  // Modais e formulários
-  const modalUsuarioBackdrop = document.getElementById('modal-usuario-backdrop');
+  // Modal criar/editar
+  const modalBackdrop = document.getElementById('modal-usuario-backdrop');
   const formUsuario = document.getElementById('form-usuario');
-  const modalUsuarioTitulo = document.getElementById('modal-usuario-titulo');
-  const modalErro = document.getElementById('modal-erro');
+  const modalTitulo = document.getElementById('modal-usuario-titulo');
+  const modalErro = document.getElementById('modal-usuario-erro');
   const inputId = document.getElementById('usuario-id');
   const inputNome = document.getElementById('usuario-nome');
   const inputEmail = document.getElementById('usuario-email');
   const inputSenha = document.getElementById('usuario-senha');
   const selectCargo = document.getElementById('usuario-cargo');
-  const btnSalvarUsuario = document.getElementById('btn-salvar-usuario');
+  const btnSalvar = document.getElementById('btn-salvar-usuario');
+  const btnCancelar = document.getElementById('btn-cancelar-usuario');
 
-  // Modal Exclusão
-  const modalExclusaoBackdrop = document.getElementById('modal-exclusao-backdrop');
-  const exclusaoNome = document.getElementById('exclusao-nome');
+  // Modal exclusão
+  const modalExcluirBackdrop = document.getElementById('modal-excluir-backdrop');
+  const modalExcluirTexto = document.getElementById('modal-excluir-texto');
   const btnConfirmarExclusao = document.getElementById('btn-confirmar-exclusao');
+  const btnCancelarExclusao = document.getElementById('btn-cancelar-exclusao');
 
   let listaUsuarios = [];
   let listaCargos = [];
   let usuarioParaExcluir = null;
 
-  // Feedback global na página
-  function mostrarFeedback(mensagem, tipo = 'success') {
-    alertaFeedback.className = `alert alert-${tipo}`;
+  // --- Feedback ---
+  function mostrarFeedback(mensagem, tipo = 'sucesso') {
+    alertaFeedback.className = `alerta alerta-${tipo}`;
     alertaFeedback.textContent = mensagem;
-    alertaFeedback.classList.remove('d-none');
+    alertaFeedback.classList.remove('oculto');
     window.scrollTo({ top: 0, behavior: 'smooth' });
-
-    setTimeout(() => {
-      alertaFeedback.classList.add('d-none');
-    }, 5000);
+    setTimeout(() => alertaFeedback.classList.add('oculto'), 5000);
   }
 
-  function mostrarErroModal(mensagem) {
-    modalErro.textContent = mensagem;
-    modalErro.classList.remove('d-none');
+  // --- Modal criar/editar ---
+  function abrirModal(titulo) {
+    modalTitulo.textContent = titulo;
+    modalErro.classList.add('oculto');
+    modalBackdrop.classList.add('ativo');
   }
 
-  function esconderErroModal() {
-    modalErro.textContent = '';
-    modalErro.classList.add('d-none');
-  }
-
-  // Controle dos modais
-  function abrirModalUsuario(titulo = 'Novo Usuário') {
-    esconderErroModal();
-    modalUsuarioTitulo.textContent = titulo;
-    modalUsuarioBackdrop.classList.add('show');
-  }
-
-  function fecharModalUsuario() {
-    modalUsuarioBackdrop.classList.remove('show');
+  function fecharModal() {
+    modalBackdrop.classList.remove('ativo');
     formUsuario.reset();
-    inputId.value = '';
-    esconderErroModal();
   }
 
-  function abrirModalExclusao(usuario) {
-    usuarioParaExcluir = usuario;
-    exclusaoNome.textContent = `${usuario.nome} (${usuario.email})`;
-    modalExclusaoBackdrop.classList.add('show');
+  btnCancelar.addEventListener('click', fecharModal);
+
+  function mostrarErroModal(msg) {
+    modalErro.textContent = msg;
+    modalErro.classList.remove('oculto');
+  }
+
+  // --- Modal exclusão ---
+  function abrirModalExclusao(user) {
+    usuarioParaExcluir = user;
+    modalExcluirTexto.textContent = `Deseja excluir o usuário "${user.nome}"? Esta ação não pode ser desfeita.`;
+    modalExcluirBackdrop.classList.add('ativo');
   }
 
   function fecharModalExclusao() {
+    modalExcluirBackdrop.classList.remove('ativo');
     usuarioParaExcluir = null;
-    modalExclusaoBackdrop.classList.remove('show');
   }
 
-  // Eventos de fechar modal
-  document.getElementById('btn-fechar-modal-x').addEventListener('click', fecharModalUsuario);
-  document.getElementById('btn-cancelar-modal').addEventListener('click', fecharModalUsuario);
-  document.getElementById('btn-fechar-exclusao-x').addEventListener('click', fecharModalExclusao);
-  document.getElementById('btn-cancelar-exclusao').addEventListener('click', fecharModalExclusao);
+  btnCancelarExclusao.addEventListener('click', fecharModalExclusao);
 
-  // Fechar ao clicar fora do conteúdo
-  modalUsuarioBackdrop.addEventListener('click', (e) => {
-    if (e.target === modalUsuarioBackdrop) fecharModalUsuario();
-  });
-  modalExclusaoBackdrop.addEventListener('click', (e) => {
-    if (e.target === modalExclusaoBackdrop) fecharModalExclusao();
+  // --- Escape para fechar modais ---
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { fecharModal(); fecharModalExclusao(); }
   });
 
-  // 3. Buscar cargos da API (com fallback de visualização)
+  // --- Carregar cargos ---
   async function carregarCargos() {
-    try {
-      const res = await fetch('/api/cargos');
-      if (!res.ok) throw new Error('Falha ao carregar lista de cargos');
-      listaCargos = await res.json();
-    } catch (err) {
-      console.warn('API de cargos não conectada, utilizando lista padrão para visualização:', err);
-      listaCargos = [
-        { id: 1, nome: 'Analista' },
-        { id: 2, nome: 'Operador' }
-      ];
-    }
-
-    selectCargo.innerHTML = '<option value="">Selecione um cargo...</option>';
-    listaCargos.forEach((cargo) => {
-      const opt = document.createElement('option');
-      opt.value = cargo.id;
-      opt.textContent = cargo.nome;
-      selectCargo.appendChild(opt);
-    });
+    const res = await fetch('/api/cargos');
+    const dados = await res.json();
+    if (!res.ok) throw new Error(dados.erro || 'Erro ao carregar cargos.');
+    listaCargos = dados;
+    selectCargo.innerHTML = listaCargos.map(
+      (c) => `<option value="${c.id}">${c.nome}</option>`
+    ).join('');
   }
 
-  // 4. Buscar usuários da API (com dados de demonstração para visualização do design)
+  // --- Carregar usuários ---
   async function carregarUsuarios() {
-    estadoCarregando.classList.remove('d-none');
+    estadoCarregando.classList.remove('oculto');
     tabelaCorpo.innerHTML = '';
-    estadoVazio.classList.add('d-none');
+    estadoVazio.classList.add('oculto');
 
     try {
       const res = await fetch('/api/usuarios');
-      if (!res.ok) throw new Error('Falha ao buscar usuários');
-      listaUsuarios = await res.json();
-      if (!listaUsuarios || listaUsuarios.length === 0) {
-        throw new Error('Lista vazia no banco, utilizando demonstração visual');
-      }
+      const dados = await res.json();
+      if (!res.ok) throw new Error(dados.erro || 'Erro ao carregar usuários.');
+
+      listaUsuarios = dados;
       renderizarTabela(listaUsuarios);
-    } catch (err) {
-      console.warn('Utilizando dados de demonstração para visualização do design:', err);
-      if (!listaUsuarios || listaUsuarios.length === 0) {
-        listaUsuarios = [
-          { id: 1, nome: 'Matheus Felipe', email: 'analista@vistoria.com', id_cargo: 1, cargo: 'Analista' },
-          { id: 2, nome: 'Carlos Eduardo Santos', email: 'carlos.operador@vistoria.com', id_cargo: 2, cargo: 'Operador' },
-          { id: 3, nome: 'Mariana Silva Costa', email: 'mariana.analista@vistoria.com', id_cargo: 1, cargo: 'Analista' },
-          { id: 4, nome: 'Roberto Almeida', email: 'roberto.vistoriador@vistoria.com', id_cargo: 2, cargo: 'Operador' }
-        ];
-      }
-      renderizarTabela(listaUsuarios);
+    } catch (erro) {
+      mostrarFeedback(`Não foi possível carregar os usuários. ${erro.message}`, 'erro');
     } finally {
-      estadoCarregando.classList.add('d-none');
+      estadoCarregando.classList.add('oculto');
     }
   }
 
-  // 5. Renderizar tabela de usuários
-  function renderizarTabela(usuarios) {
-    tabelaCorpo.innerHTML = '';
+  function escapar(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
 
-    if (usuarios.length === 0) {
-      estadoVazio.classList.remove('d-none');
+  function badgeCargo(cargo) {
+    const c = (cargo || '').toLowerCase();
+    if (c === 'analista') return `<span class="badge-analista">${escapar(cargo)}</span>`;
+    return `<span class="badge-operador">${escapar(cargo)}</span>`;
+  }
+
+  // --- Renderizar tabela ---
+  function renderizarTabela(lista) {
+    if (lista.length === 0) {
+      tabelaCorpo.innerHTML = '';
+      estadoVazio.classList.remove('oculto');
       return;
     }
-    estadoVazio.classList.add('d-none');
+    estadoVazio.classList.add('oculto');
 
-    usuarios.forEach((user) => {
+    tabelaCorpo.innerHTML = '';
+    lista.forEach((user) => {
+      const ehProprio = user.id === usuarioLogado.id;
       const tr = document.createElement('tr');
-      const isAnalista = (user.cargo || '').toLowerCase() === 'analista';
-      const badgeClass = isAnalista ? 'badge-analista' : 'badge-operador';
-      const ehProprioUsuario = user.id === usuarioLogado.id;
-
       tr.innerHTML = `
-        <td style="color: var(--text-muted); font-weight: 500;">#${user.id}</td>
-        <td>
-          <div style="font-weight: 600; color: var(--text-main);">${escapeHtml(user.nome)}</div>
-          ${ehProprioUsuario ? '<span style="font-size: 0.75rem; color: var(--primary);">(Você)</span>' : ''}
-        </td>
-        <td style="color: var(--text-muted);">${escapeHtml(user.email)}</td>
-        <td>
-          <span class="badge ${badgeClass}">${escapeHtml(user.cargo)}</span>
-        </td>
-        <td style="text-align: right;">
-          <div class="table-actions" style="justify-content: flex-end;">
-            <button
-              type="button"
-              class="btn btn-sm btn-outline btn-editar"
-              data-id="${user.id}"
-              title="Editar dados"
-            >
-              Editar
-            </button>
-            <button
-              type="button"
-              class="btn btn-sm btn-outline-danger btn-excluir"
-              data-id="${user.id}"
-              ${ehProprioUsuario ? 'disabled title="Você não pode excluir sua própria conta"' : 'title="Excluir usuário"'}
-            >
-              Excluir
-            </button>
+        <td>${user.id}</td>
+        <td>${escapar(user.nome)}</td>
+        <td>${escapar(user.email)}</td>
+        <td>${badgeCargo(user.cargo)}</td>
+        <td class="cabecalho-acoes">
+          <div class="acoes-linha acoes-finalizadas">
+            <button class="btn btn-pequeno btn-editar">✏️ Editar</button>
+            ${!ehProprio ? `<button class="btn btn-perigo btn-pequeno btn-excluir">🗑️ Excluir</button>` : ''}
           </div>
-        </td>
-      `;
+        </td>`;
 
-      // Evento de Editar
-      tr.querySelector('.btn-editar').addEventListener('click', () => {
-        editarUsuario(user);
-      });
-
-      // Evento de Excluir
-      if (!ehProprioUsuario) {
-        tr.querySelector('.btn-excluir').addEventListener('click', () => {
-          abrirModalExclusao(user);
-        });
-      }
+      tr.querySelector('.btn-editar').addEventListener('click', () => editarUsuario(user));
+      const btnEx = tr.querySelector('.btn-excluir');
+      if (btnEx) btnEx.addEventListener('click', () => abrirModalExclusao(user));
 
       tabelaCorpo.appendChild(tr);
     });
   }
 
-  // Prepara formulário para edição
+  // --- Editar ---
   function editarUsuario(user) {
     inputId.value = user.id;
     inputNome.value = user.nome;
     inputEmail.value = user.email;
     inputSenha.value = '';
-    inputSenha.placeholder = 'Digite uma nova senha para o usuário';
-    inputSenha.required = true;
-    document.getElementById('senha-ajuda').textContent = 'O backend requer confirmação ou nova senha para alterar o cadastro.';
+    inputSenha.placeholder = 'Nova senha (obrigatório)';
+    document.getElementById('senha-ajuda').textContent = 'Informe a nova senha para alterar.';
     selectCargo.value = user.id_cargo;
-
-    abrirModalUsuario(`Editar Usuário #${user.id}`);
+    abrirModal(`Editar Usuário #${user.id}`);
   }
 
-  // Prepara formulário para novo usuário
+  // --- Novo ---
   document.getElementById('btn-novo-usuario').addEventListener('click', () => {
     formUsuario.reset();
     inputId.value = '';
     inputSenha.placeholder = 'Mínimo 6 caracteres';
-    inputSenha.required = true;
-    document.getElementById('senha-ajuda').textContent = 'Digite a senha de acesso inicial do usuário.';
-    abrirModalUsuario('Novo Usuário');
+    document.getElementById('senha-ajuda').textContent = 'Senha de acesso inicial do usuário.';
+    abrirModal('Novo Usuário');
   });
 
-  // Filtro de busca em tempo real
+  // --- Filtro de busca ---
   inputBusca.addEventListener('input', () => {
     const termo = inputBusca.value.trim().toLowerCase();
-    if (!termo) {
-      renderizarTabela(listaUsuarios);
-      return;
-    }
-
-    const filtrados = listaUsuarios.filter((u) => {
-      const nomeMatch = (u.nome || '').toLowerCase().includes(termo);
-      const emailMatch = (u.email || '').toLowerCase().includes(termo);
-      const cargoMatch = (u.cargo || '').toLowerCase().includes(termo);
-      return nomeMatch || emailMatch || cargoMatch;
-    });
-
+    if (!termo) { renderizarTabela(listaUsuarios); return; }
+    const filtrados = listaUsuarios.filter((u) =>
+      (u.nome || '').toLowerCase().includes(termo) ||
+      (u.email || '').toLowerCase().includes(termo) ||
+      (u.cargo || '').toLowerCase().includes(termo)
+    );
     renderizarTabela(filtrados);
   });
 
-  // 6. Submissão do formulário (Criar ou Atualizar)
+  // --- Submissão do form ---
   formUsuario.addEventListener('submit', async (e) => {
     e.preventDefault();
-    esconderErroModal();
+    modalErro.classList.add('oculto');
 
     const id = inputId.value;
     const nome = inputNome.value.trim();
@@ -269,108 +210,60 @@ document.addEventListener('DOMContentLoaded', async () => {
     const senha = inputSenha.value;
     const idCargo = Number(selectCargo.value);
 
-    if (!nome || !email || !idCargo) {
-      mostrarErroModal('Por favor, preencha todos os campos obrigatórios.');
+    if (!nome || !email || !idCargo || !senha) {
+      mostrarErroModal('Preencha todos os campos obrigatórios.');
       return;
     }
 
-    if (!senha) {
-      mostrarErroModal('Por favor, informe a senha de acesso.');
-      return;
-    }
-
-    const corpo = { nome, email, senha, idCargo };
-    const ehEdicao = Boolean(id);
-    const url = ehEdicao ? `/api/usuarios/${id}` : '/api/usuarios';
-    const metodo = ehEdicao ? 'PUT' : 'POST';
+    const url = id ? `/api/usuarios/${id}` : '/api/usuarios';
+    const metodo = id ? 'PUT' : 'POST';
 
     try {
-      btnSalvarUsuario.disabled = true;
-      btnSalvarUsuario.textContent = 'Salvando...';
-
+      btnSalvar.disabled = true;
+      btnSalvar.textContent = 'Salvando...';
       const res = await fetch(url, {
         method: metodo,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(corpo)
+        body: JSON.stringify({ nome, email, senha, idCargo })
       });
-
       const dados = await res.json();
+      if (!res.ok) { mostrarErroModal(dados.erro || 'Falha ao salvar.'); return; }
 
-      if (!res.ok) {
-        mostrarErroModal(dados.erro || 'Falha ao salvar usuário.');
-        btnSalvarUsuario.disabled = false;
-        btnSalvarUsuario.textContent = 'Salvar Usuário';
-        return;
-      }
-
-      fecharModalUsuario();
-      mostrarFeedback(ehEdicao ? 'Usuário atualizado com sucesso!' : 'Novo usuário cadastrado com sucesso!');
+      fecharModal();
+      mostrarFeedback(id ? 'Usuário atualizado com sucesso!' : 'Novo usuário cadastrado!');
+      await carregarUsuarios();
     } catch (err) {
-      console.warn('API indisponível, simulando operação na memória para teste de interface:', err);
-      const cargoEncontrado = listaCargos.find(c => c.id === idCargo) || { nome: idCargo === 1 ? 'Analista' : 'Operador' };
-      if (ehEdicao) {
-        const idx = listaUsuarios.findIndex(u => u.id === Number(id));
-        if (idx !== -1) {
-          listaUsuarios[idx] = { ...listaUsuarios[idx], nome, email, id_cargo: idCargo, cargo: cargoEncontrado.nome };
-        }
-      } else {
-        const novoId = listaUsuarios.length > 0 ? Math.max(...listaUsuarios.map(u => u.id)) + 1 : 1;
-        listaUsuarios.push({ id: novoId, nome, email, id_cargo: idCargo, cargo: cargoEncontrado.nome });
-      }
-      fecharModalUsuario();
-      mostrarFeedback(ehEdicao ? 'Usuário atualizado com sucesso!' : 'Novo usuário cadastrado com sucesso!');
-      renderizarTabela(listaUsuarios);
+      mostrarErroModal('Erro de comunicação com o servidor.');
     } finally {
-      btnSalvarUsuario.disabled = false;
-      btnSalvarUsuario.textContent = 'Salvar Usuário';
+      btnSalvar.disabled = false;
+      btnSalvar.textContent = 'Salvar Usuário';
     }
   });
 
-  // 7. Confirmação de exclusão
+  // --- Confirmar exclusão ---
   btnConfirmarExclusao.addEventListener('click', async () => {
     if (!usuarioParaExcluir) return;
-
     try {
       btnConfirmarExclusao.disabled = true;
       btnConfirmarExclusao.textContent = 'Excluindo...';
-
-      const res = await fetch(`/api/usuarios/${usuarioParaExcluir.id}`, {
-        method: 'DELETE'
-      });
-
+      const res = await fetch(`/api/usuarios/${usuarioParaExcluir.id}`, { method: 'DELETE' });
       const dados = await res.json();
-
-      if (!res.ok) {
-        mostrarFeedback(dados.erro || 'Falha ao excluir o usuário.', 'danger');
-        fecharModalExclusao();
-        return;
-      }
-
+      if (!res.ok) { mostrarFeedback(dados.erro || 'Falha ao excluir.', 'erro'); return; }
       fecharModalExclusao();
       mostrarFeedback('Usuário excluído com sucesso!');
       await carregarUsuarios();
     } catch (err) {
-      console.warn('API indisponível, simulando exclusão na memória para teste de interface:', err);
-      listaUsuarios = listaUsuarios.filter(u => u.id !== usuarioParaExcluir.id);
-      fecharModalExclusao();
-      mostrarFeedback('Usuário excluído com sucesso!');
-      renderizarTabela(listaUsuarios);
+      mostrarFeedback('Erro ao conectar ao servidor.', 'erro');
     } finally {
       btnConfirmarExclusao.disabled = false;
       btnConfirmarExclusao.textContent = 'Sim, Excluir';
     }
   });
 
-  function escapeHtml(str) {
-    if (!str) return '';
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
-  }
-
   // Inicialização
-  await Promise.all([carregarCargos(), carregarUsuarios()]);
+  try {
+    await Promise.all([carregarCargos(), carregarUsuarios()]);
+  } catch (erro) {
+    mostrarFeedback(`Não foi possível carregar os cargos. ${erro.message}`, 'erro');
+  }
 });

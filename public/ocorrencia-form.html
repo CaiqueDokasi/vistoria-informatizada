@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastro de Ocorrência - Vistoria Informatizada</title>
+  <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+  <header class="navbar">
+    <div class="navbar-conteudo">
+      <a href="index.html" class="navbar-marca">Vistoria Informatizada</a>
+      <nav class="navbar-links">
+        <a href="vistorias.html">Vistorias</a>
+        <a href="ocorrencias.html" class="ativo">Ocorrências</a>
+        <a href="usuarios.html" id="linkUsuarios" class="oculto">Usuários</a>
+      </nav>
+      <div class="navbar-usuario">
+        <span id="nomeUsuarioLogado"></span>
+        <button type="button" id="btnSair" class="btn btn-pequeno btn-navbar">Sair</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="cabecalho-pagina">
+      <div>
+        <h1 id="tituloFormulario">Cadastro de Ocorrência</h1>
+        <p class="subtitulo">Registre ou atualize um problema encontrado na vistoria.</p>
+      </div>
+      <a id="btnVoltar" href="vistoria-detalhes.html" class="btn">Voltar para detalhes</a>
+    </div>
+
+    <div id="avisoPermissao" class="alerta alerta-info oculto"></div>
+    <div id="mensagemFeedback" class="alerta oculto"></div>
+
+    <section class="card">
+      <form id="formOcorrencia">
+        <div class="form-grupo">
+          <label for="idVistoria">Vistoria</label>
+          <select id="idVistoria" class="form-controle" required>
+            <option value="">Carregando vistorias...</option>
+          </select>
+        </div>
+        <div class="form-grupo">
+          <label for="classificacao">Classificação</label>
+          <select id="classificacao" class="form-controle" required>
+            <option value="">Selecione a gravidade...</option>
+            <option value="BAIXA">Baixa</option>
+            <option value="MEDIA">Média</option>
+            <option value="ALTA">Alta</option>
+            <option value="CRITICA">Crítica</option>
+          </select>
+        </div>
+        <div class="form-grupo">
+          <label for="descricao">Descrição da ocorrência</label>
+          <textarea id="descricao" class="form-controle" rows="4" placeholder="Descreva o problema encontrado..." required></textarea>
+        </div>
+        <div id="grupoFoto" class="form-grupo">
+          <label for="urlFoto">Link da foto (opcional)</label>
+          <input type="url" id="urlFoto" class="form-controle" maxlength="255" placeholder="https://exemplo.com/foto.jpg">
+        </div>
+        <div id="fotosExistentes" class="form-grupo oculto"></div>
+        <div id="secaoAdicionarFoto" class="form-grupo oculto">
+          <label for="novaUrlFoto">Adicionar foto à ocorrência</label>
+          <div class="acoes-linha">
+            <input type="url" id="novaUrlFoto" class="form-controle" maxlength="255" placeholder="https://exemplo.com/foto.jpg">
+            <button type="button" id="btnAdicionarFoto" class="btn btn-primario">Adicionar foto</button>
+          </div>
+        </div>
+        <div class="acoes-linha">
+          <button type="submit" id="btnSalvar" class="btn btn-primario">Salvar ocorrência</button>
+          <a id="btnCancelar" href="vistoria-detalhes.html" class="btn">Cancelar</a>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <script src="js/comum.js"></script>
+  <script src="js/ocorrencia-form.js"></script>
+</body>
+</html>

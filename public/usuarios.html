@@ -4,145 +4,108 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gestão de Usuários - Vistoria Informatizada</title>
-  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="css/estilo.css">
 </head>
 <body>
-  <!-- Container da Barra de Navegação Injetada via auth.js -->
-  <div id="navbar-container"></div>
-
-  <main class="main-content">
-    <div class="container">
-      <!-- Cabeçalho da Página -->
-      <div class="page-header">
-        <div>
-          <h1 class="page-title">Gestão de Usuários</h1>
-          <p class="page-subtitle">Cadastre, altere e gerencie os analistas e operadores do sistema.</p>
-        </div>
-        <div>
-          <button type="button" class="btn btn-primary" id="btn-novo-usuario">
-            + Novo Usuário
-          </button>
-        </div>
-      </div>
-
-      <!-- Feedback de Sucesso ou Erro -->
-      <div id="alerta-feedback" class="alert d-none" role="alert"></div>
-
-      <!-- Barra de Filtro / Busca -->
-      <div class="card mb-4" style="margin-bottom: 1.5rem;">
-        <div class="card-body" style="padding: 1rem 1.25rem;">
-          <input
-            type="text"
-            id="input-busca"
-            class="form-input"
-            placeholder="🔍 Buscar usuário por nome ou e-mail..."
-          >
-        </div>
-      </div>
-
-      <!-- Tabela de Usuários -->
-      <div class="card">
-        <div class="table-responsive">
-          <table class="table">
-            <thead>
-              <tr>
-                <th style="width: 70px;">ID</th>
-                <th>Nome</th>
-                <th>E-mail</th>
-                <th>Cargo</th>
-                <th style="width: 170px; text-align: right;">Ações</th>
-              </tr>
-            </thead>
-            <tbody id="tabela-usuarios-corpo">
-              <!-- Linhas geradas dinamicamente via usuarios.js -->
-            </tbody>
-          </table>
-        </div>
-
-        <div id="estado-carregando" class="text-center" style="padding: 2.5rem; color: var(--text-muted);">
-          Carregando usuários...
-        </div>
-
-        <div id="estado-vazio" class="text-center d-none" style="padding: 2.5rem; color: var(--text-muted);">
-          Nenhum usuário encontrado.
-        </div>
+  <header class="navbar">
+    <div class="navbar-conteudo">
+      <a href="index.html" class="navbar-marca">Vistoria Informatizada</a>
+      <nav class="navbar-links">
+        <a href="vistorias.html">Vistorias</a>
+        <a href="ocorrencias.html">Ocorrências</a>
+        <a href="usuarios.html" class="ativo">Usuários</a>
+      </nav>
+      <div class="navbar-usuario">
+        <span id="nomeUsuarioHeader"></span>
+        <button type="button" id="btnSair" class="btn btn-pequeno btn-navbar">Sair</button>
       </div>
     </div>
+  </header>
+
+  <main class="container">
+    <div class="cabecalho-pagina">
+      <div>
+        <h1>Gestão de Usuários</h1>
+        <p class="subtitulo">Cadastre, altere e gerencie os analistas e operadores do sistema.</p>
+      </div>
+      <button type="button" class="btn btn-primario" id="btn-novo-usuario">+ Novo Usuário</button>
+    </div>
+
+    <div id="alerta-feedback" class="alerta oculto"></div>
+
+    <section class="card">
+      <div class="form-grupo campo-busca">
+        <input type="text" id="input-busca" class="form-controle" placeholder="🔍 Buscar usuário por nome ou e-mail...">
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="tabela-responsiva">
+        <table id="tabela-usuarios">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nome</th>
+              <th>E-mail</th>
+              <th>Cargo</th>
+              <th class="cabecalho-acoes">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tabela-usuarios-corpo"></tbody>
+        </table>
+      </div>
+      <div id="estado-carregando" class="subtitulo estado-carregamento">Carregando usuários...</div>
+      <div id="estado-vazio" class="subtitulo estado-carregamento oculto">Nenhum usuário encontrado.</div>
+    </section>
   </main>
 
-  <!-- =======================================================================
-       Modal de Cadastro / Edição de Usuário (CSS + JS Puro)
-       ======================================================================= -->
+  <!-- Modal Criar/Editar Usuário -->
   <div class="modal-backdrop" id="modal-usuario-backdrop">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-usuario-titulo">
-      <div class="modal-header">
-        <h2 class="modal-title" id="modal-usuario-titulo">Novo Usuário</h2>
-        <button type="button" class="modal-close" id="btn-fechar-modal-x" aria-label="Fechar">&times;</button>
-      </div>
-
-      <form id="form-usuario">
-        <div class="modal-body">
-          <input type="hidden" id="usuario-id">
-
-          <div id="modal-erro" class="alert alert-danger d-none"></div>
-
-          <div class="form-group">
-            <label for="usuario-nome" class="form-label">Nome Completo <span class="required">*</span></label>
-            <input type="text" id="usuario-nome" class="form-input" placeholder="Ex: João da Silva" required>
-          </div>
-
-          <div class="form-group">
-            <label for="usuario-email" class="form-label">E-mail <span class="required">*</span></label>
-            <input type="email" id="usuario-email" class="form-input" placeholder="joao@vistoria.com" required>
-          </div>
-
-          <div class="form-group">
-            <label for="usuario-senha" class="form-label">
-              Senha <span class="required" id="senha-asterisco">*</span>
-            </label>
-            <input type="password" id="usuario-senha" class="form-input" placeholder="Mínimo 6 caracteres">
-            <div class="form-hint" id="senha-ajuda">Digite a senha de acesso inicial do usuário.</div>
-          </div>
-
-          <div class="form-group">
-            <label for="usuario-cargo" class="form-label">Cargo <span class="required">*</span></label>
-            <select id="usuario-cargo" class="form-select" required>
-              <option value="">Selecione um cargo...</option>
-            </select>
-          </div>
+    <div class="modal-caixa">
+      <div class="modal-titulo" id="modal-usuario-titulo">Novo Usuário</div>
+      <div id="modal-usuario-erro" class="alerta alerta-erro oculto"></div>
+      <form id="form-usuario" novalidate>
+        <input type="hidden" id="usuario-id">
+        <div class="form-grupo">
+          <label for="usuario-nome">Nome *</label>
+          <input type="text" id="usuario-nome" class="form-controle" required>
         </div>
-
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" id="btn-cancelar-modal">Cancelar</button>
-          <button type="submit" class="btn btn-primary" id="btn-salvar-usuario">Salvar Usuário</button>
+        <div class="form-grupo">
+          <label for="usuario-email">E-mail *</label>
+          <input type="email" id="usuario-email" class="form-controle" required>
+        </div>
+        <div class="form-grupo">
+          <label for="usuario-senha">Senha *</label>
+          <input type="password" id="usuario-senha" class="form-controle" required placeholder="Mínimo 6 caracteres">
+          <small id="senha-ajuda" class="subtitulo"></small>
+        </div>
+        <div class="form-grupo">
+          <label for="usuario-cargo">Cargo *</label>
+          <select id="usuario-cargo" class="form-controle" required>
+            <option value="">Carregando...</option>
+          </select>
+        </div>
+        <div class="acoes-linha acoes-modal-usuario">
+          <button type="button" id="btn-cancelar-usuario" class="btn">Cancelar</button>
+          <button type="submit" id="btn-salvar-usuario" class="btn btn-primario">Salvar Usuário</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- =======================================================================
-       Modal de Confirmação de Exclusão (CSS + JS Puro)
-       ======================================================================= -->
-  <div class="modal-backdrop" id="modal-exclusao-backdrop">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-exclusao-titulo">
-      <div class="modal-header">
-        <h2 class="modal-title" id="modal-exclusao-titulo">Excluir Usuário</h2>
-        <button type="button" class="modal-close" id="btn-fechar-exclusao-x" aria-label="Fechar">&times;</button>
-      </div>
-
-      <div class="modal-body">
-        <p>Tem certeza de que deseja excluir o usuário <strong id="exclusao-nome"></strong>?</p>
-        <p class="text-muted mt-2" style="font-size: 0.85rem;">Esta ação é irreversível.</p>
-      </div>
-
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" id="btn-cancelar-exclusao">Cancelar</button>
-        <button type="button" class="btn btn-danger" id="btn-confirmar-exclusao">Sim, Excluir</button>
+  <!-- Modal Confirmar Exclusão -->
+  <div class="modal-backdrop" id="modal-excluir-backdrop">
+    <div class="modal-caixa">
+      <div class="modal-titulo">Excluir usuário</div>
+      <p id="modal-excluir-texto"></p>
+      <div class="acoes-linha acoes-modal-exclusao">
+        <button type="button" id="btn-cancelar-exclusao" class="btn">Cancelar</button>
+        <button type="button" id="btn-confirmar-exclusao" class="btn btn-perigo">Sim, Excluir</button>
       </div>
     </div>
   </div>
 
-  <script src="/js/auth.js"></script>
-  <script src="/js/usuarios.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/usuarios.js"></script>
 </body>
 </html>

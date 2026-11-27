@@ -4,186 +4,77 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Vistorias - Vistoria Informatizada</title>
-  <link rel="stylesheet" href="/css/style.css">
-  <style>
-    .vistorias-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 1.5rem;
-      margin-top: 1.5rem;
-    }
-    .vistoria-card {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-md);
-      overflow: hidden;
-      box-shadow: var(--shadow-sm);
-      display: flex;
-      flex-direction: column;
-      transition: var(--transition);
-    }
-    .vistoria-card:hover {
-      box-shadow: var(--shadow-md);
-      border-color: var(--primary-border);
-      transform: translateY(-2px);
-    }
-    .vistoria-img-wrapper {
-      height: 180px;
-      background: #e2e8f0;
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--text-muted);
-      font-weight: 500;
-      overflow: hidden;
-    }
-    .vistoria-badge-pos {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-    }
-    .vistoria-info {
-      padding: 1.25rem;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-    .vistoria-code {
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: var(--primary);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    .vistoria-endereco {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: var(--text-main);
-      margin: 0.25rem 0 0.5rem;
-    }
-    .vistoria-desc {
-      font-size: 0.875rem;
-      color: var(--text-muted);
-      line-height: 1.4;
-      margin-bottom: 1rem;
-      flex: 1;
-    }
-    .vistoria-meta {
-      font-size: 0.825rem;
-      color: var(--text-muted);
-      display: flex;
-      justify-content: space-between;
-      border-top: 1px solid var(--border-color);
-      padding-top: 0.75rem;
-      margin-bottom: 1rem;
-    }
-  </style>
+  <link rel="stylesheet" href="css/estilo.css">
 </head>
 <body>
-  <div id="navbar-container"></div>
-
-  <main class="main-content">
-    <div class="container">
-      <div class="page-header">
-        <div>
-          <h1 class="page-title">Painel de Vistorias</h1>
-          <p class="page-subtitle">Acompanhe as inspeções prediais em andamento, ocorrências e vistorias concluídas.</p>
-        </div>
-        <div>
-          <button type="button" class="btn btn-primary" onclick="alert('Funcionalidade de exemplo no modo visualização')">
-            + Nova Vistoria
-          </button>
-        </div>
+  <header class="navbar">
+    <div class="navbar-conteudo">
+      <a href="index.html" class="navbar-marca">Vistoria Informatizada</a>
+      <nav class="navbar-links">
+        <a href="vistorias.html" class="ativo">Vistorias</a>
+        <a href="ocorrencias.html">Ocorrências</a>
+        <a href="usuarios.html" id="linkUsuarios" class="oculto">Usuários</a>
+      </nav>
+      <div class="navbar-usuario">
+        <span id="nomeUsuario"></span>
+        <button type="button" id="btnSair" class="btn btn-pequeno btn-navbar">Sair</button>
       </div>
+    </div>
+  </header>
 
-      <div class="card mb-4" style="margin-bottom: 1.5rem;">
-        <div class="card-body" style="padding: 1rem 1.25rem; display: flex; gap: 1rem; flex-wrap: wrap;">
-          <input
-            type="text"
-            id="busca-vistoria"
-            class="form-input"
-            style="flex: 2; min-width: 240px;"
-            placeholder="🔍 Buscar por endereço, código ou condomínio..."
-          >
-          <select id="filtro-status" class="form-select" style="flex: 1; min-width: 160px;">
-            <option value="">Todos os status</option>
-            <option value="aberta">Aberta</option>
-            <option value="andamento">Em Andamento</option>
-            <option value="finalizada">Finalizada</option>
+  <main class="container">
+    <div class="cabecalho-pagina">
+      <div>
+        <h1>Vistorias</h1>
+        <p class="subtitulo" id="totalVistorias"></p>
+      </div>
+      <a href="vistoria-form.html" id="btnNova" class="btn btn-primario oculto">+ Nova vistoria</a>
+    </div>
+
+    <section class="card">
+      <div class="filtros">
+        <div class="form-grupo">
+          <label for="filtroStatus">Status</label>
+          <select id="filtroStatus" class="form-controle">
+            <option value="">Todos</option>
+            <option value="ABERTA">Aberta</option>
+            <option value="FINALIZADA">Finalizada</option>
           </select>
         </div>
+        <div class="form-grupo">
+          <label for="filtroEndereco">Endereço</label>
+          <input type="text" id="filtroEndereco" class="form-controle" placeholder="Ex.: Rua das Flores">
+        </div>
+        <div>
+          <button type="button" id="btnFiltrar" class="btn btn-primario">Filtrar</button>
+          <button type="button" id="btnLimpar" class="btn btn-com-espacamento-esquerdo">Limpar</button>
+        </div>
       </div>
+    </section>
 
-      <div class="vistorias-grid">
-        <div class="vistoria-card">
-          <div class="vistoria-img-wrapper" style="background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: white;">
-            <span>🏢 Edifício Bela Vista</span>
-            <span class="badge badge-analista vistoria-badge-pos" style="background: #dbeafe; color: #1e40af;">Aberta</span>
-          </div>
-          <div class="vistoria-info">
-            <div class="vistoria-code">VIS-2026-001</div>
-            <h3 class="vistoria-endereco">Av. Paulista, 1000 - Bela Vista</h3>
-            <p class="vistoria-desc">Inspeção periódica da fachada externa, marquise e subsolo após período de chuvas fortes.</p>
-            <div class="vistoria-meta">
-              <span>👤 Resp: Carlos Santos</span>
-              <span>📅 22/11/2026</span>
-            </div>
-            <div class="table-actions" style="margin-top: auto; gap: 0.5rem; flex-wrap: wrap;">
-              <a href="/ocorrencias.html?idVistoria=1" class="btn btn-sm btn-outline" style="flex: 1; text-align: center;">Ver Ocorrências</a>
-              <a href="/ocorrencias.html?idVistoria=1&nova=1" class="btn btn-sm btn-primary" style="flex: 1; text-align: center;" title="Operador adiciona ocorrência com foto">+ 📷 Ocorrência</a>
-            </div>
-          </div>
-        </div>
+    <div id="mensagem" class="alerta oculto"></div>
+    <div id="carregando" class="subtitulo estado-carregamento">Carregando vistorias...</div>
 
-        <div class="vistoria-card">
-          <div class="vistoria-img-wrapper" style="background: linear-gradient(135deg, #0f766e, #14b8a6); color: white;">
-            <span>🏬 Condomínio Solar das Palmeiras</span>
-            <span class="badge badge-operador vistoria-badge-pos" style="background: #fef3c7; color: #92400e;">Em Andamento</span>
-          </div>
-          <div class="vistoria-info">
-            <div class="vistoria-code">VIS-2026-002</div>
-            <h3 class="vistoria-endereco">Rua das Flores, 450 - Jardins</h3>
-            <p class="vistoria-desc">Vistoria predial nos pilares de sustentação da garagem G1 e instalações de combate a incêndio.</p>
-            <div class="vistoria-meta">
-              <span>👤 Resp: Mariana Silva</span>
-              <span>📅 24/11/2026</span>
-            </div>
-            <div class="table-actions" style="margin-top: auto; gap: 0.5rem; flex-wrap: wrap;">
-              <a href="/ocorrencias.html?idVistoria=2" class="btn btn-sm btn-outline" style="flex: 1; text-align: center;">Ver Ocorrências</a>
-              <a href="/ocorrencias.html?idVistoria=2&nova=1" class="btn btn-sm btn-primary" style="flex: 1; text-align: center;" title="Operador adiciona ocorrência com foto">+ 📷 Ocorrência</a>
-            </div>
-          </div>
-        </div>
+    <!-- Os cartões de vistorias são inseridos aqui pelo vistorias.js -->
+    <div id="listaVistorias"></div>
+    <div id="vazio" class="oculto subtitulo estado-vazio">Nenhuma vistoria encontrada.</div>
 
-        <div class="vistoria-card">
-          <div class="vistoria-img-wrapper" style="background: linear-gradient(135deg, #374151, #6b7280); color: white;">
-            <span>🏭 Galpão Logístico Alfa</span>
-            <span class="badge vistoria-badge-pos" style="background: #dcfce7; color: #166534;">Finalizada</span>
-          </div>
-          <div class="vistoria-info">
-            <div class="vistoria-code">VIS-2026-003</div>
-            <h3 class="vistoria-endereco">Rodovia Anhanguera, Km 28 - Distrito Industrial</h3>
-            <p class="vistoria-desc">Inspeção estrutural da cobertura metálica e piso industrial para renovação de AVCB.</p>
-            <div class="vistoria-meta">
-              <span>👤 Resp: Roberto Almeida</span>
-              <span>📅 18/11/2026</span>
-            </div>
-            <div class="table-actions" style="margin-top: auto; gap: 0.5rem; flex-wrap: wrap;">
-              <a href="/ocorrencias.html?idVistoria=3" class="btn btn-sm btn-outline" style="flex: 1; text-align: center;">Ver Ocorrências</a>
-              <a href="/ocorrencias.html?idVistoria=3&nova=1" class="btn btn-sm btn-primary" style="flex: 1; text-align: center;" title="Operador adiciona ocorrência com foto">+ 📷 Ocorrência</a>
-            </div>
-          </div>
+    <!-- Modal de confirmação de exclusão -->
+    <div id="modalExcluir" class="oculto modal-fundo">
+      <div class="card modal-caixa-vistoria">
+        <div class="card-titulo">Excluir vistoria</div>
+        <p>Deseja excluir a vistoria <strong id="excluirCodigo"></strong>?</p>
+        <p class="subtitulo modal-dica" id="excluirEndereco"></p>
+        <p class="aviso-exclusao">⚠️ As fotos e ocorrências desta vistoria também serão excluídas.</p>
+        <div class="acoes-linha margem-topo acoes-finalizadas">
+          <button type="button" id="btnCancelarExcluir" class="btn">Cancelar</button>
+          <button type="button" id="btnConfirmarExcluir" class="btn btn-perigo">Excluir</button>
         </div>
       </div>
     </div>
   </main>
 
-  <script src="/js/auth.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      AUTH.renderNavbar('vistorias');
-    });
-  </script>
+  <script src="js/auth.js"></script>
+  <script src="js/vistorias.js"></script>
 </body>
 </html>

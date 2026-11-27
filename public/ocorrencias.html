@@ -3,310 +3,87 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ocorrências - Vistoria Informatizada</title>
-  <link rel="stylesheet" href="/css/style.css">
-  <style>
-    .badge-critica { background: #fee2e2; color: #991b1b; }
-    .badge-alta { background: #ffedd5; color: #9a3412; }
-    .badge-media { background: #fef9c3; color: #854d0e; }
-    .badge-baixa { background: #e0f2fe; color: #075985; }
-
-    .detalhe-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-      margin-bottom: 1.25rem;
-      background: var(--bg-subtle);
-      padding: 1rem;
-      border-radius: var(--radius-md);
-      border: 1px solid var(--border-color);
-    }
-    .detalhe-campo-label {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      font-weight: 700;
-      color: var(--text-muted);
-      letter-spacing: 0.05em;
-      margin-bottom: 0.25rem;
-    }
-    .detalhe-campo-valor {
-      font-size: 0.95rem;
-      font-weight: 500;
-      color: var(--text-main);
-    }
-  </style>
+  <title>Histórico de Ocorrências - Vistoria Informatizada</title>
+  <link rel="stylesheet" href="css/estilo.css">
 </head>
 <body>
-  <!-- Container da barra de navegação injetada por auth.js -->
-  <div id="navbar-container"></div>
-
-  <main class="main-content">
-    <div class="container">
-      <!-- Feedback de Notificação -->
-      <div id="alerta-feedback" class="alert d-none" style="margin-bottom: 1.25rem;"></div>
-
-      <div class="page-header">
-        <div>
-          <h1 class="page-title">Histórico de Ocorrências</h1>
-          <p class="page-subtitle">Acompanhe apontamentos, irregularidades e o registro de fotos das vistorias.</p>
-        </div>
-        <div>
-          <button type="button" class="btn btn-primary" id="btn-nova-ocorrencia">
-            + Nova Ocorrência
-          </button>
-        </div>
+  <header class="navbar">
+    <div class="navbar-conteudo">
+      <a href="index.html" class="navbar-marca">Vistoria Informatizada</a>
+      <nav class="navbar-links">
+        <a href="vistorias.html">Vistorias</a>
+        <a href="ocorrencias.html" class="ativo">Ocorrências</a>
+        <a href="usuarios.html" id="linkUsuarios" class="oculto">Usuários</a>
+      </nav>
+      <div class="navbar-usuario">
+        <span id="nomeUsuarioLogado"></span>
+        <button type="button" id="btnSair" class="btn btn-pequeno btn-navbar">Sair</button>
       </div>
+    </div>
+  </header>
 
-      <!-- Filtros e Busca -->
-      <div class="card mb-4" style="margin-bottom: 1.5rem;">
-        <div class="card-body" style="padding: 1rem 1.25rem; display: flex; gap: 1rem; flex-wrap: wrap;">
-          <input
-            type="text"
-            id="input-busca"
-            class="form-input"
-            style="flex: 2; min-width: 240px;"
-            placeholder="🔍 Filtrar por código (#OC), descrição, endereço ou operador..."
-          >
-          <select id="filtro-gravidade" class="form-select" style="flex: 1; min-width: 170px;">
-            <option value="">Todas as gravidades</option>
-            <option value="CRITICA">Crítica</option>
-            <option value="ALTA">Alta</option>
-            <option value="MEDIA">Média</option>
-            <option value="BAIXA">Baixa</option>
+  <main class="container">
+    <div class="cabecalho-pagina">
+      <div>
+        <h1>Histórico de Ocorrências</h1>
+        <p class="subtitulo">Consulte todas as ocorrências registradas nas vistorias.</p>
+      </div>
+      <a id="btnNovaOcorrencia" href="ocorrencia-form.html" class="btn btn-primario oculto">+ Nova ocorrência</a>
+    </div>
+
+    <section class="card">
+      <div class="filtros">
+        <div class="form-grupo">
+          <label for="filtroVistoria">Filtrar por vistoria</label>
+          <select id="filtroVistoria" class="form-controle">
+            <option value="">Todas as vistorias</option>
           </select>
         </div>
-      </div>
-
-      <!-- Tabela de Ocorrências -->
-      <div class="card">
-        <div class="table-responsive">
-          <table class="table">
-            <thead>
-              <tr>
-                <th style="width: 90px;">Código</th>
-                <th style="width: 100px;">Data</th>
-                <th>Vistoria / Endereço</th>
-                <th>Classificação</th>
-                <th>Descrição do Apontamento</th>
-                <th>Fotos</th>
-                <th>Operador</th>
-                <th style="text-align: right; width: 200px;">Ações</th>
-              </tr>
-            </thead>
-            <tbody id="ocorrencias-corpo">
-              <!-- Renderizado dinamicamente via JS -->
-            </tbody>
-          </table>
+        <div class="form-grupo">
+          <label for="filtroClassificacao">Filtrar por classificação</label>
+          <select id="filtroClassificacao" class="form-controle">
+            <option value="">Todas</option>
+            <option value="BAIXA">Baixa</option>
+            <option value="MEDIA">Média</option>
+            <option value="ALTA">Alta</option>
+            <option value="CRITICA">Crítica</option>
+          </select>
         </div>
-
-        <!-- Estado de Carregamento -->
-        <div id="estado-carregando" class="text-center p-4 d-none">
-          <div class="spinner" style="margin: 0 auto 0.75rem;"></div>
-          <p class="text-muted">Carregando ocorrências e fotos...</p>
-        </div>
-
-        <!-- Estado Vazio -->
-        <div id="estado-vazio" class="text-center p-4 d-none" style="padding: 3rem 1.5rem;">
-          <p style="font-size: 1.5rem; margin-bottom: 0.5rem;">📋</p>
-          <h3 style="font-size: 1.1rem; font-weight: 600;">Nenhuma ocorrência encontrada</h3>
-          <p class="text-muted mt-2" style="font-size: 0.9rem;">
-            Nenhum registro corresponde aos filtros selecionados ou ainda não há ocorrências cadastradas.
-          </p>
+        <div>
+          <button type="button" id="btnLimparFiltros" class="btn">Limpar filtros</button>
         </div>
       </div>
-    </div>
+    </section>
+
+    <div id="mensagemErro" class="alerta oculto"></div>
+
+    <section class="card">
+      <div class="card-titulo">
+        <span>Ocorrências encontradas</span>
+        <span id="totalRegistros" class="subtitulo"></span>
+      </div>
+      <div class="tabela-responsiva">
+        <table>
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Endereço da vistoria</th>
+              <th>Classificação</th>
+              <th>Descrição</th>
+              <th>Operador</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tabelaOcorrencias">
+            <tr><td colspan="6">Carregando ocorrências...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div id="detalheOcorrencia" class="caixa-detalhe-ocorrencia oculto"></div>
+    </section>
   </main>
 
-  <!-- =======================================================================
-       Modal de Cadastro de Nova Ocorrência (Com Foto e Upload)
-       ======================================================================= -->
-  <div class="modal-backdrop" id="modal-ocorrencia-backdrop">
-    <div class="modal modal-lg" role="dialog" aria-modal="true" aria-labelledby="modal-ocorrencia-titulo">
-      <div class="modal-header">
-        <h2 class="modal-title" id="modal-ocorrencia-titulo">Registrar Nova Ocorrência</h2>
-        <button type="button" class="modal-close" id="btn-fechar-modal-x" aria-label="Fechar">&times;</button>
-      </div>
-
-      <form id="form-ocorrencia">
-        <div class="modal-body">
-          <div id="modal-erro" class="alert alert-danger d-none"></div>
-
-          <div class="form-group">
-            <label for="ocorrencia-vistoria" class="form-label">Vistoria de Origem <span class="required">*</span></label>
-            <select id="ocorrencia-vistoria" class="form-select" required>
-              <option value="">Selecione uma vistoria...</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="ocorrencia-classificacao" class="form-label">Classificação da Gravidade <span class="required">*</span></label>
-            <select id="ocorrencia-classificacao" class="form-select" required>
-              <option value="">Selecione a classificação...</option>
-              <option value="BAIXA">🟢 Baixa (Pequenos reparos, estética)</option>
-              <option value="MEDIA">🟡 Média (Manutenção necessária, desgaste)</option>
-              <option value="ALTA">🟠 Alta (Risco funcional, equipamento vencido)</option>
-              <option value="CRITICA">🔴 Crítica (Risco iminente de dano ou segurança)</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="ocorrencia-descricao" class="form-label">Descrição do Apontamento <span class="required">*</span></label>
-            <textarea
-              id="ocorrencia-descricao"
-              class="form-input"
-              rows="3"
-              placeholder="Descreva detalhadamente a irregularidade ou ocorrência encontrada..."
-              required
-            ></textarea>
-          </div>
-
-          <!-- Seção de Foto da Ocorrência -->
-          <div class="form-group">
-            <label class="form-label">Foto da Ocorrência (Opcional)</label>
-            <div style="display: flex; gap: 0.75rem; flex-direction: column;">
-              <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
-                <label class="btn btn-secondary btn-sm" style="cursor: pointer; margin: 0; display: inline-flex; align-items: center; gap: 0.4rem;">
-                  📷 Escolher Foto do Dispositivo
-                  <input type="file" id="ocorrencia-foto-arquivo" accept="image/*" style="display: none;">
-                </label>
-                <span class="text-muted" style="font-size: 0.85rem;">ou informe a URL da foto abaixo:</span>
-              </div>
-              <input
-                type="url"
-                id="ocorrencia-foto-url"
-                class="form-input"
-                placeholder="https://exemplo.com/foto-apontamento.jpg"
-              >
-            </div>
-
-            <!-- Pré-visualização da Imagem -->
-            <div id="upload-preview-container" class="upload-preview-container d-none">
-              <img id="upload-preview-img" src="" alt="Pré-visualização da Foto">
-              <button type="button" id="btn-remover-preview" class="upload-preview-remove" title="Remover imagem">&times;</button>
-            </div>
-            <div class="form-hint">O operador pode anexar mais fotos mesmo após a ocorrência ser cadastrada.</div>
-          </div>
-        </div>
-
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" id="btn-cancelar-modal">Cancelar</button>
-          <button type="submit" class="btn btn-primary" id="btn-salvar-ocorrencia">Salvar Ocorrência</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- =======================================================================
-       Modal de Detalhes da Ocorrência e Gerenciamento de Fotos
-       ======================================================================= -->
-  <div class="modal-backdrop" id="modal-detalhes-backdrop">
-    <div class="modal modal-xl" role="dialog" aria-modal="true" aria-labelledby="detalhe-codigo">
-      <div class="modal-header">
-        <div>
-          <div style="display: flex; align-items: center; gap: 0.75rem;">
-            <h2 class="modal-title" id="detalhe-codigo">#OC-101</h2>
-            <span id="detalhe-classificacao" class="badge">Crítica</span>
-          </div>
-          <div class="text-muted" style="font-size: 0.85rem; margin-top: 0.2rem;" id="detalhe-vistoria">
-            Endereço da Vistoria
-          </div>
-        </div>
-        <button type="button" class="modal-close" id="btn-fechar-detalhes-x" aria-label="Fechar">&times;</button>
-      </div>
-
-      <div class="modal-body">
-        <!-- Metadados da Ocorrência -->
-        <div class="detalhe-grid">
-          <div>
-            <div class="detalhe-campo-label">Data de Registro</div>
-            <div class="detalhe-campo-valor" id="detalhe-data">--</div>
-          </div>
-          <div>
-            <div class="detalhe-campo-label">Operador Responsável</div>
-            <div class="detalhe-campo-valor" id="detalhe-operador">--</div>
-          </div>
-        </div>
-
-        <div class="form-group mb-4">
-          <div class="detalhe-campo-label">Descrição do Apontamento</div>
-          <p id="detalhe-descricao" style="background: var(--bg-subtle); padding: 0.85rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color); font-size: 0.95rem; line-height: 1.5;"></p>
-        </div>
-
-        <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 1.5rem 0;">
-
-        <!-- Galeria de Fotos Anexadas -->
-        <div>
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-main);">
-              📸 Fotos Anexadas à Ocorrência
-            </h3>
-            <span class="text-muted" style="font-size: 0.85rem;">Clique para ampliar ou excluir</span>
-          </div>
-
-          <!-- Mensagem sem fotos -->
-          <div id="detalhe-sem-fotos" class="text-center p-3 mt-2 d-none" style="background: var(--bg-subtle); border-radius: var(--radius-md); border: 1px dashed var(--border-color);">
-            <p class="text-muted" style="margin: 0;">Nenhuma foto foi anexada a esta ocorrência ainda.</p>
-          </div>
-
-          <!-- Grid de Fotos -->
-          <div id="detalhe-galeria" class="fotos-grid"></div>
-        </div>
-
-        <!-- Seção: Operador Adicionar Nova Foto à Ocorrência -->
-        <div id="secao-adicionar-foto" class="mt-4" style="background: #f8fafc; border: 1px solid var(--primary-border); border-radius: var(--radius-md); padding: 1.25rem;">
-          <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem;">
-            ➕ Adicionar Foto a Esta Ocorrência (Operador)
-          </h4>
-          <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 0.85rem;">
-            Tire uma foto no local da vistoria ou anexe uma imagem para complementar o relatório.
-          </p>
-
-          <form id="form-adicionar-foto">
-            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-              <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
-                <label class="btn btn-sm btn-secondary" style="cursor: pointer; margin: 0; display: inline-flex; align-items: center; gap: 0.4rem;">
-                  📷 Carregar Imagem
-                  <input type="file" id="add-foto-arquivo" accept="image/*" style="display: none;">
-                </label>
-                <input
-                  type="url"
-                  id="add-foto-url"
-                  class="form-input"
-                  style="flex: 1; min-width: 200px;"
-                  placeholder="Ou cole o link direto da imagem..."
-                >
-                <button type="submit" class="btn btn-sm btn-primary" id="btn-salvar-nova-foto">
-                  Salvar Foto na Ocorrência
-                </button>
-              </div>
-
-              <!-- Pré-visualização da Nova Foto -->
-              <div id="add-preview-container" class="upload-preview-container d-none" style="max-height: 160px;">
-                <img id="add-preview-img" src="" alt="Pré-visualização da nova foto" style="max-height: 160px;">
-                <button type="button" id="btn-add-remover-preview" class="upload-preview-remove" title="Remover imagem">&times;</button>
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" id="btn-fechar-detalhes-footer">Fechar</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- =======================================================================
-       Modal de Zoom da Foto (Lightbox)
-       ======================================================================= -->
-  <div class="modal-backdrop" id="modal-zoom-backdrop" style="background: rgba(0, 0, 0, 0.85);">
-    <div style="position: relative; max-width: 90vw; max-height: 90vh; display: flex; align-items: center; justify-content: center;">
-      <button type="button" id="btn-fechar-zoom" style="position: absolute; top: -35px; right: 0; background: transparent; border: none; color: white; font-size: 2rem; cursor: pointer;">&times;</button>
-      <img id="zoom-img" src="" alt="Foto Ampliada" style="max-width: 100%; max-height: 85vh; border-radius: var(--radius-md); box-shadow: var(--shadow-xl);">
-    </div>
-  </div>
-
-  <script src="/js/auth.js"></script>
-  <script src="/js/ocorrencias.js"></script>
+  <script src="js/comum.js"></script>
+  <script src="js/ocorrencias.js"></script>
 </body>
 </html>

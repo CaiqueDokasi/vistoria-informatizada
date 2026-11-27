@@ -77,9 +77,20 @@ router.post('/ocorrencias', async (req, res) => {
 // Corpo: { urlFoto }
 router.post('/ocorrencias/:id/fotos', async (req, res) => {
   const { urlFoto } = req.body || {};
+  const urlFotoNormalizada = typeof urlFoto === 'string' ? urlFoto.trim() : '';
+  let urlFotoAnalisada;
 
-  if (!urlFoto) {
-    return res.status(400).json({ erro: 'Informe o link ou dados da foto' });
+  try {
+    urlFotoAnalisada = new URL(urlFotoNormalizada);
+  } catch (erro) {
+    return res.status(400).json({ erro: 'Informe um link HTTP ou HTTPS válido para a foto' });
+  }
+
+  if (
+    urlFotoNormalizada.length > 255 ||
+    !['http:', 'https:'].includes(urlFotoAnalisada.protocol)
+  ) {
+    return res.status(400).json({ erro: 'Informe um link HTTP ou HTTPS válido de até 255 caracteres' });
   }
 
   const [ocorrencias] = await db.query('SELECT id FROM ocorrencia WHERE id = ?', [req.params.id]);
@@ -89,10 +100,10 @@ router.post('/ocorrencias/:id/fotos', async (req, res) => {
 
   const [resultado] = await db.query(
     'INSERT INTO foto_ocorrencia (id_ocorrencia, url_foto) VALUES (?, ?)',
-    [req.params.id, urlFoto]
+    [req.params.id, urlFotoNormalizada]
   );
 
-  res.status(201).json({ id: resultado.insertId, url_foto: urlFoto, mensagem: 'Foto adicionada à ocorrência' });
+  res.status(201).json({ id: resultado.insertId, url_foto: urlFotoNormalizada, mensagem: 'Foto adicionada à ocorrência' });
 });
 
 // DELETE /api/ocorrencias/:id/fotos/:idFoto - remove uma foto da ocorrência
