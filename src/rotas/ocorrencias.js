@@ -1,7 +1,14 @@
 const express = require('express');
+const { rateLimit } = require('express-rate-limit');
 const db = require('../db');
 
 const router = express.Router();
+const limitarMutacoesDeFoto = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 30,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false
+});
 
 // GET /api/ocorrencias - histórico de ocorrências
 // Filtro opcional: /api/ocorrencias?idVistoria=1
@@ -75,7 +82,7 @@ router.post('/ocorrencias', async (req, res) => {
 
 // POST /api/ocorrencias/:id/fotos - adiciona mais uma foto à ocorrência
 // Corpo: { urlFoto }
-router.post('/ocorrencias/:id/fotos', async (req, res) => {
+router.post('/ocorrencias/:id/fotos', limitarMutacoesDeFoto, async (req, res) => {
   const { urlFoto } = req.body || {};
   const urlFotoNormalizada = typeof urlFoto === 'string' ? urlFoto.trim() : '';
   let urlFotoAnalisada;
@@ -107,7 +114,7 @@ router.post('/ocorrencias/:id/fotos', async (req, res) => {
 });
 
 // DELETE /api/ocorrencias/:id/fotos/:idFoto - remove uma foto da ocorrência
-router.delete('/ocorrencias/:id/fotos/:idFoto', async (req, res) => {
+router.delete('/ocorrencias/:id/fotos/:idFoto', limitarMutacoesDeFoto, async (req, res) => {
   await db.query(
     'DELETE FROM foto_ocorrencia WHERE id = ? AND id_ocorrencia = ?',
     [req.params.idFoto, req.params.id]
