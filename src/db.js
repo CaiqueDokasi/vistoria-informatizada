@@ -5,7 +5,7 @@ const db = mysql.createPool({
   host: 'localhost',
   port: 3306,
   user: 'root',
-  password: '',
+  password: 'root',
   database:'vistoria_informatizada',
   dateStrings: true // devolve as datas como texto: "2026-11-22 10:30:00"
 });
