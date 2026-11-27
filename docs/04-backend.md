@@ -137,9 +137,11 @@ Endereço base: `http://localhost:3000/api`
 
 | Método | Rota | Corpo |
 |---|---|---|
-| GET | `/ocorrencias?idVistoria=` | — |
+| GET | `/ocorrencias?idVistoria=` | — (devolve também quantidade e primeira foto) |
 | GET | `/ocorrencias/:id` | — (devolve também as fotos) |
 | POST | `/ocorrencias` | `{ idVistoria, idUsuarioCriador, classificacao, descricao, urlFoto }` |
+| POST | `/ocorrencias/:id/fotos` | `{ urlFoto }` |
+| DELETE | `/ocorrencias/:id/fotos/:idFoto` | — |
 | PUT | `/ocorrencias/:id` | `{ classificacao, descricao }` |
 | DELETE | `/ocorrencias/:id` | — |
 
