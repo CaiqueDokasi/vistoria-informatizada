@@ -1,7 +1,30 @@
 const express = require('express');
+const { rateLimit } = require('express-rate-limit');
 const db = require('../db');
 
 const router = express.Router();
+const limitarMutacoesDeFoto = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 30,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false
+});
+
+function normalizarUrlFoto(valor) {
+  if (valor == null || valor === '') return '';
+  if (typeof valor !== 'string') return null;
+
+  const urlFoto = valor.trim();
+  if (!urlFoto) return '';
+  if (urlFoto.length > 255) return null;
+
+  try {
+    const urlAnalisada = new URL(urlFoto);
+    return ['http:', 'https:'].includes(urlAnalisada.protocol) ? urlFoto : null;
+  } catch (erro) {
+    return null;
+  }
+}
 
 // GET /api/ocorrencias - histórico de ocorrências
 // Filtro opcional: /api/ocorrencias?idVistoria=1
@@ -51,9 +74,14 @@ router.get('/ocorrencias/:id', async (req, res) => {
 // classificacao: BAIXA, MEDIA, ALTA ou CRITICA
 router.post('/ocorrencias', async (req, res) => {
   const { idVistoria, idUsuarioCriador, classificacao, descricao, urlFoto } = req.body || {};
+  const urlFotoNormalizada = normalizarUrlFoto(urlFoto);
 
   if (!idVistoria || !idUsuarioCriador || !classificacao || !descricao) {
     return res.status(400).json({ erro: 'Preencha vistoria, classificação e descrição' });
+  }
+
+  if (urlFotoNormalizada === null) {
+    return res.status(400).json({ erro: 'Informe um link HTTP ou HTTPS válido de até 255 caracteres para a foto' });
   }
 
   const [resultado] = await db.query(
@@ -63,10 +91,10 @@ router.post('/ocorrencias', async (req, res) => {
   );
 
   // A foto é opcional
-  if (urlFoto) {
+  if (urlFotoNormalizada) {
     await db.query(
       'INSERT INTO foto_ocorrencia (id_ocorrencia, url_foto) VALUES (?, ?)',
-      [resultado.insertId, urlFoto]
+      [resultado.insertId, urlFotoNormalizada]
     );
   }
 
@@ -75,11 +103,12 @@ router.post('/ocorrencias', async (req, res) => {
 
 // POST /api/ocorrencias/:id/fotos - adiciona mais uma foto à ocorrência
 // Corpo: { urlFoto }
-router.post('/ocorrencias/:id/fotos', async (req, res) => {
+router.post('/ocorrencias/:id/fotos', limitarMutacoesDeFoto, async (req, res) => {
   const { urlFoto } = req.body || {};
+  const urlFotoNormalizada = normalizarUrlFoto(urlFoto);
 
-  if (!urlFoto) {
-    return res.status(400).json({ erro: 'Informe o link ou dados da foto' });
+  if (!urlFotoNormalizada) {
+    return res.status(400).json({ erro: 'Informe um link HTTP ou HTTPS válido de até 255 caracteres' });
   }
 
   const [ocorrencias] = await db.query('SELECT id FROM ocorrencia WHERE id = ?', [req.params.id]);
@@ -89,14 +118,14 @@ router.post('/ocorrencias/:id/fotos', async (req, res) => {
 
   const [resultado] = await db.query(
     'INSERT INTO foto_ocorrencia (id_ocorrencia, url_foto) VALUES (?, ?)',
-    [req.params.id, urlFoto]
+    [req.params.id, urlFotoNormalizada]
   );
 
-  res.status(201).json({ id: resultado.insertId, url_foto: urlFoto, mensagem: 'Foto adicionada à ocorrência' });
+  res.status(201).json({ id: resultado.insertId, url_foto: urlFotoNormalizada, mensagem: 'Foto adicionada à ocorrência' });
 });
 
 // DELETE /api/ocorrencias/:id/fotos/:idFoto - remove uma foto da ocorrência
-router.delete('/ocorrencias/:id/fotos/:idFoto', async (req, res) => {
+router.delete('/ocorrencias/:id/fotos/:idFoto', limitarMutacoesDeFoto, async (req, res) => {
   await db.query(
     'DELETE FROM foto_ocorrencia WHERE id = ? AND id_ocorrencia = ?',
     [req.params.idFoto, req.params.id]

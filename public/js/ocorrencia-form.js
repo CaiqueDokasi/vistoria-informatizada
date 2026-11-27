@@ -26,6 +26,7 @@ async function iniciarFormulario() {
   }
 
   document.getElementById('formOcorrencia').addEventListener('submit', aoEnviarFormulario);
+  document.getElementById('btnAdicionarFoto').addEventListener('click', adicionarFoto);
 }
 
 function atualizarLinksVoltar(idVistoria) {
@@ -109,26 +110,115 @@ async function carregarOcorrenciaParaEdicao(id) {
     // No backend atual, PUT /api/ocorrencias/:id altera classificação e descrição
     document.getElementById('grupoFoto').classList.add('oculto');
 
-    const fotos = oc.fotos || [];
-    if (fotos.length > 0) {
-      const divFotos = document.getElementById('fotosExistentes');
-      divFotos.classList.remove('oculto');
-      divFotos.innerHTML = `
-        <label>Fotos já cadastradas</label>
-        <div class="galeria-fotos">
-          ${fotos.map((f) => `
-            <div class="foto-item">
-              <img src="${escaparHtml(f.url_foto)}" alt="Foto da ocorrência" onerror="this.style.display='none'">
-              <span><a href="${escaparHtml(f.url_foto)}" target="_blank" rel="noopener">Abrir imagem</a></span>
-            </div>
-          `).join('')}
-        </div>
-      `;
+    if (temPermissao('REGISTRAR_OCORRENCIAS')) {
+      document.getElementById('secaoAdicionarFoto').classList.remove('oculto');
     }
+    renderizarFotos(oc.fotos || []);
   } catch (erro) {
     document.getElementById('btnSalvar').disabled = true;
     mostrarMensagem('mensagemFeedback', erro.message);
   }
+}
+
+function renderizarFotos(fotos) {
+  const divFotos = document.getElementById('fotosExistentes');
+  divFotos.classList.remove('oculto');
+
+  const itens = fotos.map((foto) => {
+    const idFoto = Number(foto.id);
+    const acaoRemover = temPermissao('REGISTRAR_OCORRENCIAS') && Number.isSafeInteger(idFoto)
+      ? `<button type="button" class="btn btn-perigo btn-pequeno" data-remover-foto="${idFoto}">Remover</button>`
+      : '';
+
+    return `
+      <div class="foto-item">
+        <img src="${escaparHtml(foto.url_foto)}" alt="Foto da ocorrência" onerror="this.style.display='none'">
+        <span><a href="${escaparHtml(foto.url_foto)}" target="_blank" rel="noopener">Abrir imagem</a></span>
+        ${acaoRemover}
+      </div>
+    `;
+  });
+
+  divFotos.innerHTML = `
+    <label>Fotos da ocorrência</label>
+    ${itens.length
+      ? `<div class="galeria-fotos">${itens.join('')}</div>`
+      : '<p class="subtitulo">Nenhuma foto cadastrada para esta ocorrência.</p>'}
+  `;
+
+  divFotos.querySelectorAll('[data-remover-foto]').forEach((botao) => {
+    botao.addEventListener('click', () => removerFoto(botao.dataset.removerFoto));
+  });
+}
+
+async function adicionarFoto() {
+  if (!idEdicao || !temPermissao('REGISTRAR_OCORRENCIAS')) {
+    mostrarMensagem('mensagemFeedback', 'Você não tem permissão para adicionar fotos.');
+    return;
+  }
+
+  const campoUrl = document.getElementById('novaUrlFoto');
+  const urlFoto = campoUrl.value.trim();
+  const botao = document.getElementById('btnAdicionarFoto');
+
+  if (!urlFoto) {
+    mostrarMensagem('mensagemFeedback', 'Informe o link da foto.');
+    return;
+  }
+  if (!campoUrl.reportValidity()) return;
+
+  botao.disabled = true;
+  try {
+    const resposta = await fetch(`/api/ocorrencias/${idEdicao}/fotos`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ urlFoto })
+    });
+    const dados = await resposta.json();
+    if (!resposta.ok) {
+      throw new Error(dados.erro || 'Erro ao adicionar foto.');
+    }
+
+    campoUrl.value = '';
+    await carregarFotosOcorrencia();
+    mostrarMensagem('mensagemFeedback', 'Foto adicionada com sucesso!', 'sucesso');
+  } catch (erro) {
+    mostrarMensagem('mensagemFeedback', erro.message);
+  } finally {
+    botao.disabled = false;
+  }
+}
+
+async function removerFoto(idFoto) {
+  if (!temPermissao('REGISTRAR_OCORRENCIAS')) {
+    mostrarMensagem('mensagemFeedback', 'Você não tem permissão para remover fotos.');
+    return;
+  }
+  if (!confirm('Deseja realmente remover esta foto?')) return;
+
+  try {
+    const resposta = await fetch(`/api/ocorrencias/${idEdicao}/fotos/${idFoto}`, {
+      method: 'DELETE'
+    });
+    const dados = await resposta.json();
+    if (!resposta.ok) {
+      throw new Error(dados.erro || 'Erro ao remover foto.');
+    }
+
+    await carregarFotosOcorrencia();
+    mostrarMensagem('mensagemFeedback', 'Foto removida com sucesso!', 'sucesso');
+  } catch (erro) {
+    mostrarMensagem('mensagemFeedback', erro.message);
+  }
+}
+
+async function carregarFotosOcorrencia() {
+  const resposta = await fetch(`/api/ocorrencias/${idEdicao}`);
+  const dados = await resposta.json();
+  if (!resposta.ok) {
+    throw new Error(dados.erro || 'Não foi possível carregar as fotos.');
+  }
+  renderizarFotos(dados.fotos || []);
 }
 
 // Envia POST /api/ocorrencias (novo) ou PUT /api/ocorrencias/:id (edição)

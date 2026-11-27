@@ -58,9 +58,16 @@
         </div>
         <div id="grupoFoto" class="form-grupo">
           <label for="urlFoto">Link da foto (opcional)</label>
-          <input type="text" id="urlFoto" class="form-controle" placeholder="https://exemplo.com/foto.jpg">
+          <input type="url" id="urlFoto" class="form-controle" maxlength="255" placeholder="https://exemplo.com/foto.jpg">
         </div>
         <div id="fotosExistentes" class="form-grupo oculto"></div>
+        <div id="secaoAdicionarFoto" class="form-grupo oculto">
+          <label for="novaUrlFoto">Adicionar foto à ocorrência</label>
+          <div class="acoes-linha">
+            <input type="url" id="novaUrlFoto" class="form-controle" maxlength="255" placeholder="https://exemplo.com/foto.jpg">
+            <button type="button" id="btnAdicionarFoto" class="btn btn-primario">Adicionar foto</button>
+          </div>
+        </div>
         <div class="acoes-linha">
           <button type="submit" id="btnSalvar" class="btn btn-primario">Salvar ocorrência</button>
           <a id="btnCancelar" href="vistoria-detalhes.html" class="btn">Cancelar</a>

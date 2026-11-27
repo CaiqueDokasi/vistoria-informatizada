@@ -123,12 +123,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (urlInput) {
       urlInput.addEventListener('input', () => {
         const url = urlInput.value.trim();
-        if (url && (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:'))) {
-          setBase64Callback(url);
-          previewImage.src = url;
+        let urlSegura;
+        try {
+          urlSegura = new URL(url);
+        } catch (erro) {
+          setBase64Callback(null);
+          previewBox.classList.add('d-none');
+          return;
+        }
+
+        if (url && ['http:', 'https:'].includes(urlSegura.protocol)) {
+          setBase64Callback(urlSegura.href);
+          previewImage.src = urlSegura.href;
           previewBox.classList.remove('d-none');
           if (fileInput) fileInput.value = '';
-        } else if (!url) {
+        } else {
           setBase64Callback(null);
           previewBox.classList.add('d-none');
         }
@@ -467,13 +476,23 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (!res.ok) {
           const errData = await res.json().catch(() => ({}));
-          throw new Error(errData.erro || 'Erro ao registrar ocorrência');
+          const erro = new Error(errData.erro || 'Erro ao registrar ocorrência');
+          erro.status = res.status;
+          throw erro;
         }
 
         fecharModalCadastro();
         mostrarFeedback('Ocorrência registrada com sucesso com fotos!');
         await carregarOcorrencias();
       } catch (err) {
+        if (err.status) {
+          if (modalErro) {
+            modalErro.textContent = err.message;
+            modalErro.classList.remove('d-none');
+          }
+          return;
+        }
+
         console.warn('API indisponível, simulando cadastro em memória:', err);
         const vistoriaSel = listaVistorias.find(v => v.id == idVistoria);
         const novoId = listaOcorrencias.length > 0 ? Math.max(...listaOcorrencias.map(o => o.id)) + 1 : 101;
@@ -491,7 +510,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         listaOcorrencias.unshift(novaOc);
         fecharModalCadastro();
-        mostrarFeedback('Ocorrência registrada com sucesso!');
+        mostrarFeedback('API indisponível: ocorrência exibida apenas nesta sessão, sem ser salva no servidor.');
         renderizarTabela(listaOcorrencias);
       } finally {
         btnSalvarOcorrencia.disabled = false;
@@ -650,7 +669,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (!res.ok) {
           const errData = await res.json().catch(() => ({}));
-          throw new Error(errData.erro || 'Falha ao adicionar foto');
+          const erro = new Error(errData.erro || 'Falha ao adicionar foto');
+          erro.status = res.status;
+          throw erro;
         }
 
         const data = await res.json();
@@ -665,6 +686,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         mostrarFeedback('Nova foto anexada à ocorrência com sucesso!');
       } catch (err) {
+        if (err.status) {
+          mostrarFeedback(err.message);
+          return;
+        }
+
         console.warn('API indisponível, salvando foto na memória da ocorrência:', err);
         const novaFotoObj = {
           id: Date.now(),
@@ -674,7 +700,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (!ocorrenciaAtiva.fotos) ocorrenciaAtiva.fotos = [];
         ocorrenciaAtiva.fotos.push(novaFotoObj);
-        mostrarFeedback('Foto adicionada à ocorrência com sucesso!');
+        mostrarFeedback('API indisponível: foto exibida apenas nesta sessão, sem ser salva no servidor.');
       } finally {
         btnSalvarNovaFoto.disabled = false;
         btnSalvarNovaFoto.textContent = 'Salvar Foto na Ocorrência';
