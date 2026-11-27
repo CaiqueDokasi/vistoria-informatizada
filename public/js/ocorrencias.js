@@ -123,12 +123,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (urlInput) {
       urlInput.addEventListener('input', () => {
         const url = urlInput.value.trim();
-        if (url && (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:'))) {
-          setBase64Callback(url);
-          previewImage.src = url;
+        let urlSegura;
+        try {
+          urlSegura = new URL(url);
+        } catch (erro) {
+          setBase64Callback(null);
+          previewBox.classList.add('d-none');
+          return;
+        }
+
+        if (url && ['http:', 'https:'].includes(urlSegura.protocol)) {
+          setBase64Callback(urlSegura.href);
+          previewImage.src = urlSegura.href;
           previewBox.classList.remove('d-none');
           if (fileInput) fileInput.value = '';
-        } else if (!url) {
+        } else {
           setBase64Callback(null);
           previewBox.classList.add('d-none');
         }
